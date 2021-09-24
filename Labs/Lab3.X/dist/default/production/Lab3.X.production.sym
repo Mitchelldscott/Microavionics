@@ -1,0 +1,126 @@
+__S0 82 0 ABS 0
+__S1 7 0 ABS 0
+__S3 0 0 ABS 0
+__Hudata_bank10 1C 0 ABS 0
+__Ludata_bank10 1C 0 ABS 0
+__Hudata_bank4 1C 0 ABS 0
+__Ludata_bank4 1C 0 ABS 0
+__Hudata_bank13 1C 0 ABS 0
+__Ludata_bank13 1C 0 ABS 0
+__Hconfig 30000E 0 CONFIG 4
+__Lconfig 0 0 CONFIG 4
+__Hudata_acs 1C 0 ABS 0
+__Ludata_acs 1C 0 ABS 0
+isa$xinst 0 0 ABS 0
+__Hudata_bank5 1C 0 ABS 0
+__Ludata_bank5 1C 0 ABS 0
+__HresetVec 6 0 CODE 0
+__LresetVec 0 0 CODE 0
+__Hcode 1C 0 ABS 0
+__Lcode 1C 0 ABS 0
+__Hdata 1C 0 ABS 0
+__Ldata 1C 0 ABS 0
+isa$std 1 0 ABS 0
+__Hudata_bank0 1C 0 ABS 0
+__Ludata_bank0 1C 0 ABS 0
+__Hudata_bank11 1C 0 ABS 0
+__Ludata_bank11 1C 0 ABS 0
+__Hudata_bank6 1C 0 ABS 0
+__Ludata_bank6 1C 0 ABS 0
+__Hudata_bank14 1C 0 ABS 0
+__Ludata_bank14 1C 0 ABS 0
+__HHiPriISR_Vec C 0 CODE 0
+__LHiPriISR_Vec 8 0 CODE 0
+__HLoPriISR_Vec 1C 0 CODE 0
+__LLoPriISR_Vec 18 0 CODE 0
+__Hedata 1C 0 ABS 0
+__Ledata 1C 0 ABS 0
+__Hudata 1C 0 ABS 0
+__Ludata 1C 0 ABS 0
+__Hudata_bank1 1C 0 ABS 0
+__Ludata_bank1 1C 0 ABS 0
+__Hspace_0 82 0 ABS 0
+__Lspace_0 0 0 ABS 0
+__Hspace_1 7 0 ABS 0
+__Lspace_1 0 0 ABS 0
+__Hudata_bank7 1C 0 ABS 0
+__Ludata_bank7 1C 0 ABS 0
+__Hspace_3 0 0 ABS 0
+__Lspace_3 0 0 ABS 0
+__Hspace_4 60000E 0 ABS 0
+__Lspace_4 0 0 ABS 0
+__Hudata_bank2 1C 0 ABS 0
+__Ludata_bank2 1C 0 ABS 0
+__Hudata_bank12 1C 0 ABS 0
+__Ludata_bank12 1C 0 ABS 0
+__Hudata_bank8 1C 0 ABS 0
+__Ludata_bank8 1C 0 ABS 0
+__Hudata_bank15 1C 0 ABS 0
+__Ludata_bank15 1C 0 ABS 0
+__Hudata_bank3 1C 0 ABS 0
+__Ludata_bank3 1C 0 ABS 0
+__Hudata_bank9 1C 0 ABS 0
+__Ludata_bank9 1C 0 ABS 0
+%segments
+resetVec 0 5 CODE 0 0
+HiPriISR_Vec 8 B CODE 8 0
+LoPriISR_Vec 18 81 CODE 18 0
+udata_acs 0 6 COMRAM 0 1
+%locals
+build/default/production/src/lab3_orig.o
+/Applications/microchip/xc8/v2.32/pic/include/proc/pic18f87k22.inc
+src/lab3_orig.asm
+303 1C 0 CODE 0
+307 1E 0 CODE 0
+312 20 0 CODE 0
+313 22 0 CODE 0
+313 24 0 CODE 0
+313 26 0 CODE 0
+315 28 0 CODE 0
+316 2A 0 CODE 0
+316 2C 0 CODE 0
+316 2E 0 CODE 0
+318 30 0 CODE 0
+318 32 0 CODE 0
+318 34 0 CODE 0
+320 36 0 CODE 0
+320 38 0 CODE 0
+320 3A 0 CODE 0
+321 3C 0 CODE 0
+321 3E 0 CODE 0
+321 40 0 CODE 0
+322 42 0 CODE 0
+324 46 0 CODE 0
+326 48 0 CODE 0
+326 4A 0 CODE 0
+326 4C 0 CODE 0
+338 4E 0 CODE 0
+349 50 0 CODE 0
+351 52 0 CODE 0
+353 54 0 CODE 0
+354 58 0 CODE 0
+356 5A 0 CODE 0
+360 5C 0 CODE 0
+367 5E 0 CODE 0
+367 60 0 CODE 0
+367 62 0 CODE 0
+368 64 0 CODE 0
+368 66 0 CODE 0
+368 68 0 CODE 0
+369 6A 0 CODE 0
+371 6E 0 CODE 0
+373 70 0 CODE 0
+375 72 0 CODE 0
+377 74 0 CODE 0
+378 78 0 CODE 0
+380 7A 0 CODE 0
+384 7C 0 CODE 0
+392 7E 0 CODE 0
+400 80 0 CODE 0
+src/lab3_orig.asm
+284 0 0 CODE 0
+285 2 0 CODE 0
+src/lab3_orig.asm
+291 8 0 CODE 0
+src/lab3_orig.asm
+296 18 0 CODE 0

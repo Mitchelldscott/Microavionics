@@ -1,0 +1,409 @@
+
+
+Microchip MPLAB XC8 Assembler V2.32 build 20210201212658 
+                                                                                                           Thu Sep 16 15:01:47 2021
+
+
+     1                           	processor	18F87K22
+     2                           	pagewidth 132
+     3                           	opt	flic
+     4                           	psect	udata_acs,global,class=COMRAM,space=1,delta=1,lowdata,noexec
+     5                           	psect	udata_bank0,global,class=BANK0,space=1,delta=1,lowdata,noexec
+     6                           	psect	udata_bank1,global,class=BANK1,space=1,delta=1,lowdata,noexec
+     7                           	psect	udata_bank2,global,class=BANK2,space=1,delta=1,lowdata,noexec
+     8                           	psect	udata_bank3,global,class=BANK3,space=1,delta=1,lowdata,noexec
+     9                           	psect	udata_bank4,global,class=BANK4,space=1,delta=1,lowdata,noexec
+    10                           	psect	udata_bank5,global,class=BANK5,space=1,delta=1,lowdata,noexec
+    11                           	psect	udata_bank6,global,class=BANK6,space=1,delta=1,lowdata,noexec
+    12                           	psect	udata_bank7,global,class=BANK7,space=1,delta=1,lowdata,noexec
+    13                           	psect	udata_bank8,global,class=BANK8,space=1,delta=1,lowdata,noexec
+    14                           	psect	udata_bank9,global,class=BANK9,space=1,delta=1,lowdata,noexec
+    15                           	psect	udata_bank10,global,class=BANK10,space=1,delta=1,lowdata,noexec
+    16                           	psect	udata_bank11,global,class=BANK11,space=1,delta=1,lowdata,noexec
+    17                           	psect	udata_bank12,global,class=BANK12,space=1,delta=1,lowdata,noexec
+    18                           	psect	udata_bank13,global,class=BANK13,space=1,delta=1,lowdata,noexec
+    19                           	psect	udata_bank14,global,class=BANK14,space=1,delta=1,lowdata,noexec
+    20                           	psect	udata_bank15,global,class=BANK15,space=1,delta=1,lowdata,noexec
+    21                           	psect	udata,global,class=RAM,space=1,delta=1,noexec
+    22                           	psect	code,global,reloc=2,class=CODE,delta=1
+    23                           	psect	data,global,reloc=2,class=CONST,delta=1,noexec
+    24                           	psect	edata,global,class=EEDATA,space=3,delta=2,noexec
+    25                           	psect	resetVec,global,reloc=2,class=CODE,delta=1
+    26                           	psect	HiPriISR_Vec,global,reloc=2,class=CODE,delta=1
+    27                           	psect	LoPriISR_Vec,global,reloc=2,class=CODE,delta=1
+    28                           	psect	config,global,abs,ovrld,class=CONFIG,space=4,delta=1,noexec
+    29                           
+    30 ;;;;;;; Lab 1 assembly program for ASEN 4067/5067 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    31                           ; File: lab01_part04
+    32                           ; Target: PIC18F87K22
+    33                           ; Author: Microchip Technology Inc.
+    34                           ; Modified: Ruben Hinojosa Torres
+    35                           ; Using as reference also: main.s by Dan1138
+    36                           ; lab1picas.asm by Scott Palo, Doug Weibel, and Trudy Schwartz
+    37                           ; Date (Original):
+    38                           ; Date (Mod): 2021-06-2
+    39                           ; Compiler: pic-as(v2.32)
+    40                           ; IDE: MPLABX v5.50
+    41                           ;
+    42                           ;
+    43                           ; Description:
+    44                           ;
+    45                           ;
+    46                           ; Compiler Notes:
+    47                           ; Add this line to the Compiler flags i.e
+    48                           ; Right click on project name -> Properties -> pic-as Global Options ->
+    49                           ; Additional options:
+    50                           ; -Wl,-presetVec=0h,-pHiPriISR_Vec=0008h,-pLoPriISR_Vec=0018h
+    51                           ;
+    52                           ; Hardware Notes:
+    53 ;;;;;;;;;;;;;;;;;;;;;;;;;; Assembler Directives ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    54                           ; Processor Definition
+    55                           ; Radix Definition
+    56                           ; List Definition
+    57                           ; C: Set the page (i.e., Column) width
+    58                           ; N: Set the page length
+    59                           ; X: Turn MACRO expansion on or off
+    60                           ; LIST C = 160, N = 0, X = OFF
+    61                           ; Include File:
+    62  0000                     
+    63 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    64                           ; Objects to be defined in Access Bank for Variables.
+    65                           ; Examples:
+    66                           
+    67                           	psect	udata_acs
+    68  0000'                    	ds	1	; Reserve 1 byte for tmp1 in access bank
+    69                           
+    70                           ; Objects to be defined in Bank 1
+    71                           
+    72                           	psect	udata_bank1
+    73  0000'                    	ds	1	; Reserve 1 byte for tmp2 in bank 1
+    74                           
+    75                           ; Program Section: Code Starts here
+    76                           
+    77                           	psect	code
+    78  0000'                    main:
+    79  0000' EC00' F000'        	call	Initial	; Call to Initial Routine
+    80  0004'                    loop:
+    81                           
+    82                           ; Main Loop
+    83  0004' 5083               	movf	3971,w,c	; Read switch value into WREG
+    84  0006' 0B08               	andlw	8	; Bitwise AND operation to isolate ((PORTD) and 0FFh), 3
+    85  0008' E002               	bz	SWT_ON	; Branch if switch is on
+    86  000A' 9E8A               	bcf	3978,7,c	; Otherwise turn LED ((PORTB) and 0FFh), 7 off
+    87  000C' D001               	bra	RB7_OFF	; Branch to RB7_OFF to leave ((PORTB) and 0FFh), 7 off and restart instruction sequence
+    88  000E'                    SWT_ON:
+    89  000E' 8E8A               	bsf	3978,7,c	; Turn LED ((PORTB) and 0FFh), 7 on
+    90  0010'                    RB7_OFF:
+    91  0010' D7F9               	bra	loop
+    92  0012'                    Initial:
+    93                           
+    94                           ; MOVLF macro examples
+    95  0012' 0EFF               	movlw	255	; Move literal into WREG
+    96  0014' 0100               	banksel	0	; Select Bank for next file instruction
+    97  0016' 6E00               	movwf	0,c	; Move WREG into destination file
+    98  0018' 0E0F               	movlw	15	; Move literal into WREG
+    99  001A' 0100               	banksel	0	; Select Bank for next file instruction
+   100  001C' 6F00               	movwf	0,b	; Move WREG into destination file
+   101  001E' 0E88               	movlw	136	; Move literal into WREG
+   102  0020' 0101               	banksel	256	; Select Bank for next file instruction
+   103  0022' 6E00               	movwf	0,c	; Move WREG into destination file
+   104  0024' 0EFF               	movlw	255	; Move literal into WREG
+   105  0026' 0101               	banksel	256	; Select Bank for next file instruction
+   106  0028' 6F00               	movwf	0,b	; Move WREG into destination file
+   107                           
+   108                           ; Initialization
+   109  002A' 0E00               	movlw	0	; Move literal into WREG
+   110  002C' 010F               	banksel	3987	; Select Bank for next file instruction
+   111  002E' 6E93               	movwf	147,c	; Move WREG into destination file
+   112  0030' 0E08               	movlw	8	; Move literal into WREG
+   113  0032' 010F               	banksel	3989	; Select Bank for next file instruction
+   114  0034' 6E95               	movwf	149,c	; Move WREG into destination file
+   115  0036' 0E00               	movlw	0	; Move literal into WREG
+   116  0038' 010F               	banksel	3978	; Select Bank for next file instruction
+   117  003A' 6E8A               	movwf	138,c	; Move WREG into destination file
+   118  003C' 0012               	return		; Return to Mainline code
+   119                           
+   120                           	psect	edata
+   121  0000                     stk_offset	set	0
+   122  0000                     auto_size	set	0
+   123                           
+   124                           ; stack_auto defines a symbol /name/_offset which equates to the
+   125                           ; stack offset of the auto object in question
+   126  0000'                    
+   127                           ; stack_param defines a symbol /name/_offset which equates to the
+   128                           ; stack offset of the parameter object in question
+   129  0000'                    
+   130                           ; alloc_stack adjusts the SP to allocate space for auto objects
+   131                           ; it also links in to the btemp symbol so that can be used
+   132  0000'                    
+   133                           ; restore_stack adjusts the SP to remove all auto and parameter
+   134                           ; objects from the stack prior to returning from a function
+   135  0000'                    
+   136                           ; PIC18F87K22 Configuration Bit Settings
+   137                           ; CONFIG1L
+   138                           ; High-power mode during Sleep)
+   139                           ; (High Power SOSC circuit selected)
+   140                           ; CONFIG1H
+   141                           ; (Medium power, 4 MHz - 16 MHz))
+   142                           ; (Disabled)
+   143                           ; CONFIG2L
+   144                           ; is selected)
+   145                           ; CONFIG2H
+   146                           ; ((WDTCON) and 0FFh), 0 bit disabled)
+   147                           ; CONFIG3L
+   148                           ; enabled)
+   149                           ; address bus)
+   150                           ; CONFIG3H
+   151                           ; muxed with ((PORTE) and 0FFh), 6/((PORTE) and 0FFh), 5/((PORTE) and 0FFh), 4/((PORTE) and 0FFh), 3
+      +                          )
+   152                           ; CONFIG MSSPMSK = ((SSP1ADD) and 0FFh), 7 ; MSSP address masking (7 Bit address masking
+   153                           ; mode)
+   154                           ; CONFIG4L
+   155                           ; CONFIG5L
+   156                           ; CONFIG5H
+   157                           ; CONFIG6L
+   158                           ; CONFIG6H
+   159                           ; CONFIG7L
+   160                           ; CONFIG7H
+   161 ;;;;;;;;;;;;;;;;;;;;;;;;; MACRO Definitions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   162                           ; MACRO Definitions:
+   163                           ; MOVLF
+   164                           ; Description:
+   165                           ; Move literal value to given register.
+   166                           ; Input:
+   167                           ; lit: literal value
+   168                           ; dest: destination
+   169                           ; access: Access bank or not. Possible values are 'a' for access bank or
+   170                           ; 'b' for banked memory.
+   171  0000'                    
+   172 ;;;;;;;;;;;;;;;;;;;;;; Power-On-Reset entry point ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   173                           
+   174                           	psect	resetVec
+   175  0000'                    resetVec:
+   176  0000' 0000               	nop		; No Operation, give time for reset to occur
+   177  0002' EF00' F000'        	goto	main	; Go to main after reset
+   178                           
+   179 ;;;;;;;;;;;;;;;;;;; Interrupt Service Routine Vectors ;;;;;;;;;;;;;;;;;;;;;;;;;;
+   180                           ; High Priority ISR Vector Definition:
+   181                           
+   182                           	psect	HiPriISR_Vec
+   183  0000' D7FF               	goto	$	; Return to current Program Counter (For Now - no code here yet)
+   184                           
+   185                           ; Low Priority ISR Vector Definition:
+   186                           
+   187                           	psect	LoPriISR_Vec
+   188  0000' D7FF               	goto	$	; Return to current Program Counter (For Now - no code here yet)
+   189                           
+   190                           	psect	config
+   191                           
+   192                           ;Config register CONFIG1L @ 0x300000
+   193                           ;	VREG Sleep Enable bit
+   194                           ;	RETEN = ON, Enabled
+   195                           ;	LF-INTOSC Low-power Enable bit
+   196                           ;	INTOSCSEL = HIGH, LF-INTOSC in High-power mode during Sleep
+   197                           ;	SOSC Power Selection and mode Configuration bits
+   198                           ;	SOSCSEL = HIGH, High Power SOSC circuit selected
+   199                           ;	Extended Instruction Set
+   200                           ;	XINST = OFF, Disabled
+   201  300000                     	org	3145728
+   202  300000  1D                 	db	29
+   203                           
+   204                           ;Config register CONFIG1H @ 0x300001
+   205                           ;	Oscillator
+   206                           ;	FOSC = HS1, HS oscillator (Medium power, 4 MHz - 16 MHz)
+   207                           ;	PLL x4 Enable bit
+   208                           ;	PLLCFG = OFF, Disabled
+   209                           ;	Fail-Safe Clock Monitor
+   210                           ;	FCMEN = OFF, Disabled
+   211                           ;	Internal External Oscillator Switch Over Mode
+   212                           ;	IESO = OFF, Disabled
+   213  300001                     	org	3145729
+   214  300001  03                 	db	3
+   215                           
+   216                           ;Config register CONFIG2L @ 0x300002
+   217                           ;	Power Up Timer
+   218                           ;	PWRTEN = ON, Enabled
+   219                           ;	Brown Out Detect
+   220                           ;	BOREN = ON, Controlled with SBOREN bit
+   221                           ;	Brown-out Reset Voltage bits
+   222                           ;	BORV = 0x1, user specified literal
+   223                           ;	BORMV Power level
+   224                           ;	BORPWR = ZPBORMV, ZPBORMV instead of BORMV is selected
+   225  300002                     	org	3145730
+   226  300002  6A                 	db	106
+   227                           
+   228                           ;Config register CONFIG2H @ 0x300003
+   229                           ;	Watchdog Timer
+   230                           ;	WDTEN = OFF, WDT disabled in hardware; SWDTEN bit disabled
+   231                           ;	Watchdog Postscaler
+   232                           ;	WDTPS = 0x100000, user specified literal
+   233  300003                     	org	3145731
+   234  300003  00                 	db	4194304
+   235                           
+   236                           ;Config register CONFIG3L @ 0x300004
+   237                           ;	RTCC Clock Select
+   238                           ;	RTCOSC = SOSCREF, RTCC uses SOSC
+   239                           ;	External Address Shift bit
+   240                           ;	EASHFT = ON, Address Shifting enabled
+   241                           ;	Address Bus Width Select bits
+   242                           ;	ABW = MM, 8-bit address bus
+   243                           ;	Data Bus Width
+   244                           ;	BW = 0x10, user specified literal
+   245                           ;	External Bus Wait
+   246                           ;	WAIT = OFF, Disabled
+   247  300004                     	org	3145732
+   248  300004  B9                 	db	1209
+   249                           
+   250                           ;Config register CONFIG3H @ 0x300005
+   251                           ;	CCP2 Mux
+   252                           ;	CCP2MX = PORTC, RC1
+   253                           ;	ECCP Mux
+   254                           ;	ECCPMX = PORTE, Enhanced CCP1/3 [P1B/P1C/P3B/P3C] muxed with RE6/RE5/RE4/RE3
+   255                           ;	MSSP address masking
+   256                           ;	MSSPMSK = 0x1, unprogrammed default
+   257                           ;	Master Clear Enable
+   258                           ;	MCLRE = ON, MCLR Enabled, RG5 Disabled
+   259  300005                     	org	3145733
+   260  300005  8B                 	db	139
+   261                           
+   262                           ;Config register CONFIG4L @ 0x300006
+   263                           ;	Stack Overflow Reset
+   264                           ;	STVREN = ON, Enabled
+   265                           ;	Boot Block Size
+   266                           ;	BBSIZ = BB2K, 2K word Boot Block size
+   267                           ;	Background Debug
+   268                           ;	DEBUG = 0x1, unprogrammed default
+   269  300006                     	org	3145734
+   270  300006  91                 	db	145
+   271                           
+   272                           ;Config register CONFIG5L @ 0x300008
+   273                           ;	Code Protect 00800-03FFF
+   274                           ;	CP0 = OFF, Disabled
+   275                           ;	Code Protect 04000-07FFF
+   276                           ;	CP1 = OFF, Disabled
+   277                           ;	Code Protect 08000-0BFFF
+   278                           ;	CP2 = OFF, Disabled
+   279                           ;	Code Protect 0C000-0FFFF
+   280                           ;	CP3 = OFF, Disabled
+   281                           ;	Code Protect 10000-13FFF
+   282                           ;	CP4 = OFF, Disabled
+   283                           ;	Code Protect 14000-17FFF
+   284                           ;	CP5 = OFF, Disabled
+   285                           ;	Code Protect 18000-1BFFF
+   286                           ;	CP6 = OFF, Disabled
+   287                           ;	Code Protect 1C000-1FFFF
+   288                           ;	CP7 = OFF, Disabled
+   289  300008                     	org	3145736
+   290  300008  FF                 	db	255
+   291                           
+   292                           ;Config register CONFIG5H @ 0x300009
+   293                           ;	Code Protect Boot
+   294                           ;	CPB = OFF, Disabled
+   295                           ;	Data EE Read Protect
+   296                           ;	CPD = OFF, Disabled
+   297  300009                     	org	3145737
+   298  300009  C0                 	db	192
+   299                           
+   300                           ;Config register CONFIG6L @ 0x30000A
+   301                           ;	Table Write Protect 00800-03FFF
+   302                           ;	WRT0 = OFF, Disabled
+   303                           ;	Table Write Protect 04000-07FFF
+   304                           ;	WRT1 = OFF, Disabled
+   305                           ;	Table Write Protect 08000-0BFFF
+   306                           ;	WRT2 = OFF, Disabled
+   307                           ;	Table Write Protect 0C000-0FFFF
+   308                           ;	WRT3 = OFF, Disabled
+   309                           ;	Table Write Protect 10000-13FFF
+   310                           ;	WRT4 = OFF, Disabled
+   311                           ;	Table Write Protect 14000-17FFF
+   312                           ;	WRT5 = OFF, Disabled
+   313                           ;	Table Write Protect 18000-1BFFF
+   314                           ;	WRT6 = OFF, Disabled
+   315                           ;	Table Write Protect 1C000-1FFFF
+   316                           ;	WRT7 = OFF, Disabled
+   317  30000A                     	org	3145738
+   318  30000A  FF                 	db	255
+   319                           
+   320                           ;Config register CONFIG6H @ 0x30000B
+   321                           ;	Config. Write Protect
+   322                           ;	WRTC = OFF, Disabled
+   323                           ;	Table Write Protect Boot
+   324                           ;	WRTB = OFF, Disabled
+   325                           ;	Data EE Write Protect
+   326                           ;	WRTD = OFF, Disabled
+   327  30000B                     	org	3145739
+   328  30000B  E0                 	db	224
+   329                           
+   330                           ;Config register CONFIG7L @ 0x30000C
+   331                           ;	Table Read Protect 00800-03FFF
+   332                           ;	EBRT0 = OFF, Disabled
+   333                           ;	Table Read Protect 04000-07FFF
+   334                           ;	EBRT1 = OFF, Disabled
+   335                           ;	Table Read Protect 08000-0BFFF
+   336                           ;	EBRT2 = OFF, Disabled
+   337                           ;	Table Read Protect 0C000-0FFFF
+   338                           ;	EBRT3 = OFF, Disabled
+   339                           ;	Table Read Protect 10000-13FFF
+   340                           ;	EBRT4 = OFF, Disabled
+   341                           ;	Table Read Protect 14000-17FFF
+   342                           ;	EBRT5 = OFF, Disabled
+   343                           ;	Table Read Protect 18000-1BFFF
+   344                           ;	EBRT6 = OFF, Disabled
+   345                           ;	Table Read Protect 1C000-1FFFF
+   346                           ;	EBRT7 = OFF, Disabled
+   347  30000C                     	org	3145740
+   348  30000C  FF                 	db	255
+   349                           
+   350                           ;Config register CONFIG7H @ 0x30000D
+   351                           ;	Table Read Protect Boot
+   352                           ;	EBRTB = OFF, Disabled
+   353  30000D                     	org	3145741
+   354  30000D  40                 	db	64
+   355                           tosu	equ	0xFFF
+   356                           tosh	equ	0xFFE
+   357                           tosl	equ	0xFFD
+   358                           stkptr	equ	0xFFC
+   359                           pclatu	equ	0xFFB
+   360                           pclath	equ	0xFFA
+   361                           pcl	equ	0xFF9
+   362                           tblptru	equ	0xFF8
+   363                           tblptrh	equ	0xFF7
+   364                           tblptrl	equ	0xFF6
+   365                           tablat	equ	0xFF5
+   366                           prodh	equ	0xFF4
+   367                           prodl	equ	0xFF3
+   368                           indf0	equ	0xFEF
+   369                           postinc0	equ	0xFEE
+   370                           postdec0	equ	0xFED
+   371                           preinc0	equ	0xFEC
+   372                           plusw0	equ	0xFEB
+   373                           fsr0h	equ	0xFEA
+   374                           fsr0l	equ	0xFE9
+   375                           wreg	equ	0xFE8
+   376                           indf1	equ	0xFE7
+   377                           postinc1	equ	0xFE6
+   378                           postdec1	equ	0xFE5
+   379                           preinc1	equ	0xFE4
+   380                           plusw1	equ	0xFE3
+   381                           fsr1h	equ	0xFE2
+   382                           fsr1l	equ	0xFE1
+   383                           bsr	equ	0xFE0
+   384                           indf2	equ	0xFDF
+   385                           postinc2	equ	0xFDE
+   386                           postdec2	equ	0xFDD
+   387                           preinc2	equ	0xFDC
+   388                           plusw2	equ	0xFDB
+   389                           fsr2h	equ	0xFDA
+   390                           fsr2l	equ	0xFD9
+   391                           status	equ	0xFD8
+
+
+Microchip Technology PIC18 Macro Assembler V2.32 build 20210201212658 
+Symbol Table                                                                                               Thu Sep 16 15:01:47 2021
+
+                            LATB 000F8A                              main 000000                              tmp1 000000  
+                            tmp2 000000                              loop 000004                             PORTD 000F83  
+                           TRISB 000F93                             TRISD 000F95                            SWT_ON 00000E  
+                         RB7_OFF 000010                           Initial 000012                           isa$std 000001  
+                        resetVec 000000                      HiPriISR_Vec 000000                         isa$xinst 000000  
+                    LoPriISR_Vec 000000  
