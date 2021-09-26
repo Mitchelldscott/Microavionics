@@ -269,10 +269,13 @@ CONFIG  EBRTB = OFF           ; Table Read Protect Boot (Disabled)
 ; Examples:
 PSECT	udata_acs
 CNT:	    DS  2   ; Reserve 2 byte for CNT in access bank at 0x000 (literal or file location)
-VAL1:	    DS  1   ; Reserve 1 byte for VAL1 in access bank at 0x001 (literal or file location) 
 SECCNT:	    DS  2   ; Counter for Wait1sec
-CNTVAL:	    DS  1   ; value to refill CNT with
-SECCNTVAL:  DS	1   ; value to refill SECCNT
+CNTVAL:	    DS  2   ; value to refill CNT with
+SECCNTVAL:  DS	2   ; value to refill SECCNT
+RD3TRACKER: DS  1   ; tracks the RD3 button value
+RD3TEMP:    DS  1   ;
+BOUNCECNT:  DS  1   ; delay after button press
+TOGGLECNT:  DS  2   ;
     
 ; Objects to be defined in Bank 1
 PSECT	udata_bank1
@@ -302,40 +305,70 @@ PSECT	code
 main:
     RCALL    Initial	; Call to Initial Routine
 loop:
-   ; PUT YOUR CODE HERE
-   ;MOVLF			; Add operand to finish the use of this macro 
+    
+    RCALL Toggle_Handler	    ; Check if RD4 should be toggled and then toggle    
+    
+    RCALL Button_Handler	    ; Handle timing and logic of using RD3 to toggle RD2
+    
+    RCALL Check_RPG		    ; copy output of RPG (RD0 & RD1) to RJ2 & RJ3
+
+    MOVFF CNTVAL, CNT, A	    ; need to set CNTVAL to CNT to iterate properly
+    MOVFF CNTVAL+1, CNT+1, A
+    
+    RCALL WaitXXXms		    ; Normalizer sets loop to 500us
+    
+    
     BRA	    loop
 
 ;;;;;;;;;;;;;;;;;;;;;; Initialization Routine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Initial:
-    ; Initialize PORTD by clearing output
+
     CLRF PORTD, A
-    MOVLF 0x03h, TRISD, A ; Set TRISD so RDO & RD1 are input 
-			  ; and the rest are output
+    MOVLF 0x0Bh, TRISD, A		    ; Set TRISD so RDO & RD1 are input 
+					    ; and the rest are output
     CLRF PORTJ, A
-    MOVLF 0x00h, TRISJ, A ; Same as port D except for there are no inputs
+    MOVLF 0x00h, TRISJ, A		    ; Same as port D except for there are no inputs
+
+    MOVLF 0x28h, SECCNT, A		    ; use 16bit SECCNT as 1 second timer
+    MOVLF 0x01h, SECCNT+1, A	    
+    MOVFF SECCNT, SECCNTVAL, A		    ; store SECCNT vals to reuse
+    MOVFF SECCNT+1, SECCNTVAL+1, A
     
-    MOVLF 0x20h, PORTD, A ; Turn on RD5
+    MOVLF 0x20h, PORTD, A		    ; Turn on RD5
     
-    MOVLF 0x64h, SECCNT, A ; use 16bit SECCNT as 1 second timer
-    MOVLF 0x05h, SECCNT+1, A ; to maintain 1 sec timing SECCNT * SECCNT+1 == 100
-    MOVFF SECCNT, SECCNTVAL, A
+    MOVFF SECCNTVAL, SECCNT, A
+    MOVFF SECCNTVAL+1, SECCNT+1, A
     
-    RCALL	Wait1sec   ; Pause for 1e6 milliseconds
+    RCALL	Wait1sec		    ; Pause for 1 second
     
-    MOVLF 0x00h, PORTD, A
-    ; Initialization
-		; call subroutine to wait 1 second
-		; Turn ON RD5
-		; call subroutine to wait 1 second
-		; Turn OFF RD5
-		; Turn ON RD6
-		; call subroutine to wait 1 second
-		; Turn OFF RD6
-		; Turn ON RD7
-		; call subroutine to wait 1 second
-		; Turn OFF RD7
-    RETURN			    ; Return to Mainline code
+    MOVLF 0x40h, PORTD, A		    ; turn off RD5 and turn on RD6
+    
+    MOVFF SECCNTVAL, SECCNT, A
+    MOVFF SECCNTVAL+1, SECCNT+1, A
+    
+    RCALL	Wait1sec		    ; Pause for 1 second
+    
+    MOVLF 0x80h, PORTD, A
+    
+    MOVFF SECCNTVAL, SECCNT, A
+    MOVFF SECCNTVAL+1, SECCNT+1, A
+    
+    RCALL	Wait1sec		    ; Pause for 1 second
+    
+    CLRF PORTD, A
+    CLRF WREG, A
+    
+    MOVFF PORTD, RD3TRACKER, A		    ; initialize RD3Tracker
+    
+    MOVLF 0x01, TOGGLECNT, A
+    MOVLF 0x01, TOGGLECNT+1, A
+    
+    MOVLF 0x82h, CNTVAL, A		    ; A setup for WaitXXXms
+    MOVLF 0x05h, CNTVAL+1, A		    ; These values normalize loop to 500us
+					    ; Without normalizing the counters cant count long enough to delay for 1 second
+    MOVLF 0x01h, BOUNCECNT, A		    ; initialize debounce counter to prevent overflow
+        
+    RETURN				    ; Return to Mainline code
 
 ;;;;;;; WaitXXXms subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -344,7 +377,13 @@ Initial:
 ; Choose a suitable value to decrement a counter in a loop structure and 
 ; not using an excessive amount of program memory - i.e. don't use 100 nop's
 		
-WaitXXXms:
+WaitXXXms:			;   this function depends on the value of cnt, cnt+1 and cntval
+				; note that calulating the delay is done like 
+				; 2 + (((CNT_CYClES * CNT) + CNT+1_CYCLES) * CNT+1) = 2 + (((3 * 0x01) + 4) * 0x01) = 8
+				; where CNT_CYClES & CNT+1_CYCLES are 3 and 4
+				; or in time divide the equation by 4
+				; when using this function the CNTVAL must also be set in order to reset CNT for each CNT+1 
+				; passing CNT or CNT+1 as zero will result in an overflow to a 0xFF,0xFF count down
 
     DECF CNT, f, A		; Decrement counter
     
@@ -355,7 +394,7 @@ WaitXXXms:
     
     BNZ WaitXXXms
     
-    ;CLRF CNT, A   I want this here but the timing is perfect without it; clear counter for good practice
+    CLRF CNT, A			; clear counter for good practice
     
     RETURN	
 
@@ -364,23 +403,31 @@ WaitXXXms:
 ; Subroutine to wait 1 sec based on calling WaitXXXms YYY times or up to 3 nested loops
 				
 Wait1sec:
-    MOVLF 0xFFh, CNT, A	    ; A setup for WaitXXXms
-    MOVLF 0x0Dh, CNT+1, A   ; These values will create a perfect 10,000 us timer
-    MOVFF CNT, CNTVAL, A
+				    ; Uses the equation	    0.5 + (((0.75 * CNT) + 1) * CNT+1) = microseconds
+				    ; re-write in terms of y(CNT+1)   (25,000 - 0.5) / ((0.75 * CNT) + 1) = CNT+1 
+				    ; pairs of (CNT, CNT+1) that are close
+				    ; (F2, 89) 25.003ms fast
+				    ; (EB, 8D) 24.99275ms slow
+				    ; (E3, 92) 25.003ms fast
+				    ; (D3, 9D) 25.00275 fast
+				    ; (CF, A0) 25.0005ms fast
+				    ; (84, FA) 25.0005ms fast
+    
+    MOVLF 0x84h, CNT, A		    ; A setup for WaitXXXms
+    MOVLF 0xFAh, CNT+1, A	    ; These values will create a perfect 10,000 us timer
+    MOVFF CNT, CNTVAL, A	    ; need to set CNTVAL to CNT to iterate properly
     
     RCALL WaitXXXms
     
-    DECF SECCNT, f, A		; decrement second counter
+    DECF SECCNT, f, A		    ; decrement second counter
     
     BNZ Wait1sec
     
-    MOVFF SECCNTVAL, SECCNT, A	; if upper byte has value repeat loop
-    DECF SECCNT+1, f, A		; Decr upper byte
+    MOVFF SECCNTVAL, SECCNT, A	    ; if upper byte has value repeat loop
+    DECF SECCNT+1, f, A		    ; Decr upper byte
     
     BNZ Wait1sec
-    
-    ;CLRF SECCNT, A		; clear counter for good practice Fucks the timing
- 
+     
     RETURN	
 
 ;;;;;;; Check_SW1 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -388,16 +435,89 @@ Wait1sec:
 ; Subroutine to check the status of RD3 button and change RD2 (ASEN5067 ONLY)
 				
 Check_SW1:
-		; Add code here
-    RETURN	
+    MOVFF PORTD, WREG, A		; Copy the value of PORTD to WREG
+    ANDLW 0x08h				; mask the value of PORTD to isolate RD3
+    MOVWF RD3TEMP, A			; save this value incase the button was not pressed
+    XORWF RD3TRACKER, W, A		; using xor and & we can tell if the old value was
+    ANDWF RD3TRACKER, W, A		; high and the new is low, meaning the button was pressed
+    BNZ	  Toggle_RD2			; toggle RD2
+    RCALL Reset_Button			; Reset the trackers if no toggle
 
 ;;;;;;; Check_RPG subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to read the values of the RPG and display on RJ2 and RJ3
 				
 Check_RPG:
-		; Add code here
+    MOVFF PORTD, WREG, A		; Copy PORTD into the WREG
+    ANDLW 0x03				; mask WREG to isolate RD0 & RD1
+    RLNCF WREG, W, A			; Rotate right twice to align bits
+    RLNCF WREG, W, A			; ignore the carry bit to prevent garbage
+    MOVWF LATJ, A			; write to PORTJ using LATJ
+    CLRF WREG, A			; Clear WREG to prevent garbage
+    
     RETURN	 
-		
+    
+;;;;;;; Toggle_RD2 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to toggle the value of RD2
+    
+Toggle_RD2:
+    BTG LATD, 2, A			; Toggle RD2
+    RCALL Reset_Button			; Reset the button trackers
+    
+;;;;;;; Button_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle sw debouncing
+
+Button_Handler:  
+    DECF BOUNCECNT, A			; Decrement debounce counter
+    BZ Check_SW1			; If Debounce safe check button
+    
+    RETURN
+    
+;;;;;;; Toggle_RD4 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to toggle the value of RD4
+    
+Toggle_RD4:
+    BTG LATD, 4, A			; Toggle RD4
+    MOVLF 0x64h, TOGGLECNT, A		; Reset Toggle delay counter
+    MOVLF 0x14h, TOGGLECNT+1, A
+    
+    RETURN
+    
+;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle RD4 toggle timing
+    
+Toggle_Handler:
+    DECF TOGGLECNT, A			; Decrement toggle lower delay counter
+    BZ Toggle_Handler2			; handle upper counter if zero
+    
+    RETURN
+    
+;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle RD4 toggle timing
+    
+Toggle_Handler2:
+    DECF TOGGLECNT+1, A			; Decrement toggle upper counter
+    BZ Toggle_RD4			; If zero Toggle RD4
+    MOVLF 0x64h, TOGGLECNT, A		; otherwise reset toggle lower delay counter
+    
+    RETURN
+
+;;;;;;; Reset_Button subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to reset the values tracking RD3
+    
+Reset_Button:
+    MOVLF 0x04h, BOUNCECNT, A		; Reset Debounce counter
+    MOVFF RD3TEMP, RD3TRACKER, A	; save RD3 value
+    CLRF RD3TEMP, A			; clear garbage
+    CLRF WREG, A
+    
+    RETURN
+    
     END     resetVec		    ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

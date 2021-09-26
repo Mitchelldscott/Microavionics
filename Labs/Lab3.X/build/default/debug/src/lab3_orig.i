@@ -11183,7 +11183,7 @@ loop:
     MOVFF CNTVAL, CNT, A ; need to set CNTVAL to CNT to iterate properly
     MOVFF CNTVAL+1, CNT+1, A
 
-    RCALL WaitXXXms
+    RCALL WaitXXXms ; Normalizer sets loop to 500us
 
 
     BRA loop
@@ -11193,7 +11193,7 @@ Initial:
 
     CLRF PORTD, A
     MOVLF 0x0Bh, TRISD, A ; Set TRISD so RDO & ((PORTD) and 0FFh), 1, a are input
-        ; and the rest are output
+         ; and the rest are output
     CLRF PORTJ, A
     MOVLF 0x00h, TRISJ, A ; Same as port D except for there are no inputs
 
@@ -11226,15 +11226,15 @@ Initial:
     CLRF PORTD, A
     CLRF WREG, A
 
-    MOVFF PORTD, RD3TRACKER, A
+    MOVFF PORTD, RD3TRACKER, A ; initialize RD3Tracker
 
     MOVLF 0x01, TOGGLECNT, A
     MOVLF 0x01, TOGGLECNT+1, A
 
     MOVLF 0x82h, CNTVAL, A ; A setup for WaitXXXms
-    MOVLF 0x05h, CNTVAL+1, A ; These values normalize the loop to 500us
+    MOVLF 0x05h, CNTVAL+1, A ; These values normalize loop to 500us
          ; Without normalizing the counters cant count long enough to delay for 1 second
-    MOVLF 0x01h, BOUNCECNT, A
+    MOVLF 0x01h, BOUNCECNT, A ; initialize debounce counter to prevent overflow
 
     RETURN ; Return to Mainline code
 
@@ -11303,25 +11303,25 @@ Wait1sec:
 ; Subroutine to check the status of ((PORTD) and 0FFh), 3, a button and change ((PORTD) and 0FFh), 2, a (ASEN5067 ONLY)
 
 Check_SW1:
-    MOVFF PORTD, WREG, A
-    ANDLW 0x08h
-    MOVWF RD3TEMP, A
-    XORWF RD3TRACKER, W, A
-    ANDWF RD3TRACKER, W, A
-    BNZ Toggle_RD2
-    RCALL Reset_Button
+    MOVFF PORTD, WREG, A ; Copy the value of PORTD to WREG
+    ANDLW 0x08h ; mask the value of PORTD to isolate ((PORTD) and 0FFh), 3, a
+    MOVWF RD3TEMP, A ; save this value incase the button was not pressed
+    XORWF RD3TRACKER, W, A ; using xor and & we can tell if the old value was
+    ANDWF RD3TRACKER, W, A ; high and the new is low, meaning the button was pressed
+    BNZ Toggle_RD2 ; toggle ((PORTD) and 0FFh), 2, a
+    RCALL Reset_Button ; Reset the trackers if no toggle
 
 ;;;;;;; Check_RPG subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to read the values of the RPG and display on ((PORTJ) and 0FFh), 2, a and ((PORTJ) and 0FFh), 3, a
 
 Check_RPG:
-    MOVFF PORTD, WREG, A
-    ANDLW 0x03
-    RLNCF WREG, W, A
-    RLNCF WREG, W, A
-    MOVWF LATJ, A
-    CLRF WREG, A
+    MOVFF PORTD, WREG, A ; Copy PORTD into the WREG
+    ANDLW 0x03 ; mask WREG to isolate ((PORTD) and 0FFh), 0, a & ((PORTD) and 0FFh), 1, a
+    RLNCF WREG, W, A ; Rotate right twice to align bits
+    RLNCF WREG, W, A ; ignore the carry bit to prevent garbage
+    MOVWF LATJ, A ; write to PORTJ using LATJ
+    CLRF WREG, A ; Clear WREG to prevent garbage
 
     RETURN
 
@@ -11330,19 +11330,17 @@ Check_RPG:
 ; Subroutine to toggle the value of ((PORTD) and 0FFh), 2, a
 
 Toggle_RD2:
-    BTG LATD, 2, A
-    CLRF RD3TRACKER, A
-    CLRF WREG, A
-    RCALL Reset_Button
+    BTG LATD, 2, A ; Toggle ((PORTD) and 0FFh), 2, a
+    RCALL Reset_Button ; Reset the button trackers
 
 ;;;;;;; Button_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to handle sw debouncing
 
 Button_Handler:
+    DECF BOUNCECNT, A ; Decrement debounce counter
+    BZ Check_SW1 ; If Debounce safe check button
 
-    DECF BOUNCECNT, A
-    BZ Check_SW1
     RETURN
 
 ;;;;;;; Toggle_RD4 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11350,9 +11348,10 @@ Button_Handler:
 ; Subroutine to toggle the value of ((PORTD) and 0FFh), 4, a
 
 Toggle_RD4:
-    BTG LATD, 4, A
-    MOVLF 0x64h, TOGGLECNT, A
+    BTG LATD, 4, A ; Toggle ((PORTD) and 0FFh), 4, a
+    MOVLF 0x64h, TOGGLECNT, A ; Reset Toggle delay counter
     MOVLF 0x14h, TOGGLECNT+1, A
+
     RETURN
 
 ;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11360,8 +11359,9 @@ Toggle_RD4:
 ; Subroutine to handle ((PORTD) and 0FFh), 4, a toggle timing
 
 Toggle_Handler:
-    DECF TOGGLECNT, A
-    BZ Toggle_Handler2
+    DECF TOGGLECNT, A ; Decrement toggle lower delay counter
+    BZ Toggle_Handler2 ; handle upper counter if zero
+
     RETURN
 
 ;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11369,15 +11369,22 @@ Toggle_Handler:
 ; Subroutine to handle ((PORTD) and 0FFh), 4, a toggle timing
 
 Toggle_Handler2:
-    DECF TOGGLECNT+1, A
-    BZ Toggle_RD4
-    MOVLF 0x64h, TOGGLECNT, A
+    DECF TOGGLECNT+1, A ; Decrement toggle upper counter
+    BZ Toggle_RD4 ; If zero Toggle ((PORTD) and 0FFh), 4, a
+    MOVLF 0x64h, TOGGLECNT, A ; otherwise reset toggle lower delay counter
+
     RETURN
 
+;;;;;;; Reset_Button subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to reset the values tracking ((PORTD) and 0FFh), 3, a
+
 Reset_Button:
-    MOVLF 0x04h, BOUNCECNT, A
-    MOVFF RD3TEMP, RD3TRACKER, A
-    CLRF RD3TEMP, A
+    MOVLF 0x04h, BOUNCECNT, A ; Reset Debounce counter
+    MOVFF RD3TEMP, RD3TRACKER, A ; save ((PORTD) and 0FFh), 3, a value
+    CLRF RD3TEMP, A ; clear garbage
+    CLRF WREG, A
+
     RETURN
 
     END resetVec ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
