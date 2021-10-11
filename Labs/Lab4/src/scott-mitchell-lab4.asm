@@ -263,25 +263,66 @@ CONFIG  EBRTB = OFF           ; Table Read Protect Boot (Disabled)
     BANKSEL	(dest)	; Select Bank for next file instruction
     MOVWF   BANKMASK(dest), access  ; Move WREG into destination file
   ENDM
+  
+;; POINT adapted from Reference: Peatman CH 7 LCD
+;POINT
+; Taken from lab4_example.asm
+; Description:
+;   Loads strings into table pointer. 
+; Input: 
+;   stringname: name of the variable containg the desired string.
+  POINT	    MACRO stringname
+    MOVLF high stringname, TBLPTRH, A 
+    MOVLF low stringname, TBLPTRL, A
+  ENDM
+  
+;DISPLAY
+; Taken from lab4_example.asm
+; Description:
+;   Displays a given register in binary on the LCD. 
+; Input: 
+;   register: The register that is to be displayed on the LCD. 
+  DISPLAY   MACRO register
+    MOVFF register, BYTE 
+    CALL ByteDisplay
+  ENDM
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Objects to be defined in Access Bank for Variables.
 ; Examples:
 PSECT	udata_acs
-CNT:	    DS  2   ; Reserve 2 byte for CNT in access bank at 0x000 (literal or file location)
-SECCNT:	    DS  2   ; Counter for Wait1sec
-CNTVAL:	    DS  2   ; value to refill CNT with
-SECCNTVAL:  DS	2   ; value to refill SECCNT
-RD3TRACKER: DS  1   ; tracks the RD3 button value
-RD3TEMP:    DS  1   ;
+DUTY:	    DS	1   ; Track the PWM Duty Cycle (Decimal)
+DutyBig:    DS  1   ; Duty Big
+CNT:	    DS  1   ; Reserve 1 byte for CNT in access bank at 0x000 (literal or file location)
+RE3TRACKER: DS  1   ; tracks the RD3 button value
+RE3TEMP:    DS  1   ;
 BOUNCECNT:  DS  1   ; delay after button press
-TOGGLECNT:  DS  2   ;
+ALIVECNT:   DS  2   ;
+INTVAL:     DS  3   ; Reserve 3 bytes for the integer part of the display
+DECVAL:     DS  3   ; Reserve 3 bytes for the decimal part of the string
+PERIODCNT:  DS  1   ; Track the PWM period
+
     
 ; Objects to be defined in Bank 1
 PSECT	udata_bank1
 ; not used
+    
+;;;;;;; Constant Strings (Program Memory) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Taken from lab4_example.asm
+    
+PSECT romData, space = 0, class = CONST  
+LCDstr:  
+    DB  0x33,0x32,0x28,0x01,0x0C,0x06,0x00  ;Initialization string for LCD
+    
+LCDTitle:
+    DB 0x80,'A','S','E','N','5', '0', '6', '7', 0x00	; Write "ASEN5067" to first line of LCD
+    
+LCDpwmHeader:
+    DB 0xC0, 'P','W', '=', '1', '.', '0', '0', 'm', 's', 0x00
 
 ;;;;;;;;;;;;;;;;;;;;;; Power-On-Reset entry point ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Taken from lab4_example.asm
+    
 PSECT	resetVec, class = CODE, reloc = 2
 resetVec:
     NOP	    ; No Operation, give time for reset to occur
@@ -303,221 +344,393 @@ LoPriISR_Vec:
 PSECT	code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; Mainline Code ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 main:
-    RCALL    Initial	; Call to Initial Routine
+    RCALL	Initial			; Call to Initial Routine
 loop:
+    RCALL	BlinkAlive
     
-    RCALL Toggle_Handler	    ; Check if RD4 should be toggled and then toggle    
+    RCALL	CheckSW1
     
-    RCALL Button_Handler	    ; Handle timing and logic of using RD3 to toggle RD2
-    
-    RCALL Check_RPG		    ; copy output of RPG (RD0 & RD1) to RJ2 & RJ3
+    RCALL	SetPWM
 
-    MOVFF CNTVAL, CNT, A	    ; need to set CNTVAL to CNT to iterate properly
-    MOVFF CNTVAL+1, CNT+1, A
-    
-    RCALL WaitXXXms		    ; Normalizer sets loop to 500us
-    
-    
-    BRA	    loop
+Delay:
+    BTFSS 	INTCON, 2, A		; Read Timer0 TMR0IF rollover flag and ...
+    BRA		Delay			; Loop if timer has not rolled over
+    MOVLF  	high loopval, TMR0H, A	; Then write the timer values into
+    MOVLF  	low loopval, TMR0L, A	; the timer high and low registers
+    BCF  	INTCON, 2, A
+    BRA		loop
 
 ;;;;;;;;;;;;;;;;;;;;;; Initialization Routine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Initial:
 
-    CLRF PORTD, A
-    MOVLF 0x0Bh, TRISD, A		    ; Set TRISD so RDO & RD1 are input 
-					    ; and the rest are output
-    CLRF PORTJ, A
-    MOVLF 0x00h, TRISJ, A		    ; Same as port D except for there are no inputs
+    CLRF	PORTE, A
+    MOVLF	0x08h, TRISE, A		; set input for RE3
+    
+    CLRF	PORTC, A		; set PortB for display
+    MOVLF	0x02h, TRISC, A
+    
+    CLRF	PORTB, A		; set PortB for display
+    MOVLF	0xC0, TRISB, A
+    
+    MOVLF	0x00h,INTCON,A
+    MOVLF	0x08h,T0CON,A		; Set up Timer0
+    MOVLF	high timerval,TMR0H,A	; Writing binary 25536 to TMR0H / TMR0L
+    MOVLF	low timerval,TMR0L,A	; Write high byte first, then low!
+    MOVLF	100, CNT, A		; use 8bit CNT as 1 second timer only needs to initialize once
+    BSF		T0CON,7,A		; Turn on Timer0
+    
+    RCALL	InitLCD			; initialize the LCD
+    RCALL	Wait10ms
+    
+    POINT	LCDTitle
+    RCALL	DisplayC
+    
+    MOVLF	0x20h, PORTE, A		; Turn on RE5
+    RCALL	Wait1sec		; Pause for 1 second
+    
+    MOVLF	0x40h, PORTE, A		; turn off RD5 and turn on RD6
+    RCALL	Wait1sec		; Pause for 1 second
+    
+    MOVLF	0x80h, PORTE, A
+    RCALL	Wait1sec		; Pause for 1 second
+    
+    CLRF	PORTE, A
+    CLRF	WREG, A
+    
+    MOVLF	125, ALIVECNT, A
+    MOVLF	10, ALIVECNT+1, A
+    MOVLF	5, PERIODCNT, A
+    MOVLF	1, BOUNCECNT, A
+    MOVLF	0, DUTY, A
+    MOVLF	1, DutyBig, A
+    
+    MOVLF	0xC3h, INTVAL, A
+    MOVLF	0x31h, INTVAL+1, A
+    CLRF	INTVAL+2, A
+    
+    MOVLF	0xC5h, DECVAL, A
+    MOVLF	0x30h, DECVAL+1, A
+    CLRF	DECVAL+2, A
+    
+    POINT	LCDpwmHeader
+    RCALL	DisplayC
+    
+    MOVFF	PORTE, RE3TRACKER, A	; initialize RD3Tracker
+    
+    MOVLW	5
+    MULWF	DutyBig, A
+    
+    BTG		LATC, 2, A
 
-    MOVLF 0x28h, SECCNT, A		    ; use 16bit SECCNT as 1 second timer
-    MOVLF 0x01h, SECCNT+1, A	    
-    MOVFF SECCNT, SECCNTVAL, A		    ; store SECCNT vals to reuse
-    MOVFF SECCNT+1, SECCNTVAL+1, A
-    
-    MOVLF 0x20h, PORTD, A		    ; Turn on RD5
-    
-    MOVFF SECCNTVAL, SECCNT, A
-    MOVFF SECCNTVAL+1, SECCNT+1, A
-    
-    RCALL	Wait1sec		    ; Pause for 1 second
-    
-    MOVLF 0x40h, PORTD, A		    ; turn off RD5 and turn on RD6
-    
-    MOVFF SECCNTVAL, SECCNT, A
-    MOVFF SECCNTVAL+1, SECCNT+1, A
-    
-    RCALL	Wait1sec		    ; Pause for 1 second
-    
-    MOVLF 0x80h, PORTD, A
-    
-    MOVFF SECCNTVAL, SECCNT, A
-    MOVFF SECCNTVAL+1, SECCNT+1, A
-    
-    RCALL	Wait1sec		    ; Pause for 1 second
-    
-    CLRF PORTD, A
-    CLRF WREG, A
-    
-    MOVFF PORTD, RD3TRACKER, A		    ; initialize RD3Tracker
-    
-    MOVLF 0x01, TOGGLECNT, A
-    MOVLF 0x01, TOGGLECNT+1, A
-    
-    MOVLF 0x82h, CNTVAL, A		    ; A setup for WaitXXXms
-    MOVLF 0x05h, CNTVAL+1, A		    ; These values normalize loop to 500us
-					    ; Without normalizing the counters cant count long enough to delay for 1 second
-    MOVLF 0x01h, BOUNCECNT, A		    ; initialize debounce counter to prevent overflow
+    MOVLF	high loopval,TMR0H,A	; Writing binary 25536 to TMR0H / TMR0L
+    MOVLF	low loopval,TMR0L,A	; Write high byte first, then low!
         
-    RETURN				    ; Return to Mainline code
+	RETURN				; Return to Mainline code
 
-;;;;;;; WaitXXXms subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+;;;;;;; InitLCD subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; InitLCD Taken from Reference: lab4_example.asm and slightly modified
+; InitLCD - modified version of subroutine in Reference: Peatman CH7 LCD
+; Initialize the LCD.
+; First wait for 0.1 second, to get past display's power-on reset time.
+; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        
+InitLCD:
+    MOVLF	10, CNT, A		; Wait 0.1 second for LCD to power up
+    RCALL	Wait1sec		; With 10 loaded in CNT this subroutine is actually only 0.1 sec
+    POINT	LCDstr			; Set up table pointer to initialization string
+    TBLRD*				; Get first byte from string into TABLAT
+LCDstrSender:
+    CLRF	LATB, A			; First set LATB to all zero	
+    BSF		LATB, 5, A		; Drive E high - enable LCD
+    MOVF	TABLAT, W, A		; Move byte from program memory into working register
+    ANDLW	0xF0h			; Mask to get only upper nibble
+    SWAPF	WREG, W, A		; Swap so that upper nibble is in right position to move to LATB (RB0:RB3)
+    IORWF	PORTB, W, A		; Mask with the rest of PORTB to retain existing RB7:RB4 states
+    MOVWF	LATB, A			; Update LATB to send upper nibble
+    BCF		LATB, 5, A		; Drive E low so LCD will process input
+    RCALL	Wait10ms		; Wait ten milliseconds
+	
+    CLRF	LATB, A			; Reset LATB to all zero	    
+    BSF		LATB, 5, A		; Drive E high
+    MOVF	TABLAT, W, A		; Move byte from program memory into working register
+    ANDLW	0x0Fh			; Mask to get only lower nibble
+    IORWF	PORTB, W, A		; Mask lower nibble with the rest of PORTB
+    MOVWF	LATB, A			; Update LATB to send lower nibble
+    BCF		LATB, 5, A		; Drive E low so LCD will process input
+    RCALL	Wait10ms		; Wait ten milliseconds
+    TBLRD+*				; Increment pointer and get next byte
+    MOVF	TABLAT, F, A		; Check if we are done, is it zero?
+    BNZ		LCDstrSender
+    
+	RETURN
+    
+	
+;;;;;;;;DisplayC subroutine;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DisplayC taken from Reference: Peatman CH7 LCD
+; This subroutine is called with TBLPTR containing the address of a constant
+; display string.  It sends the bytes of the string to the LCD.  The first
+; byte sets the cursor position.  The remaining bytes are displayed, beginning
+; at that position hex to ASCII.
+; This subroutine expects a normal one-byte cursor-positioning code, 0xhh, and
+; a null byte at the end of the string 0x00
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DisplayC:
+    BCF		LATB, 4, A		; Drive RS pin low for cursor positioning code
+    TBLRD*				; Get byte from string into TABLAT
+    MOVF	TABLAT, F, A		; Check for leading zero byte
+    BNZ		Loop5
+    TBLRD+*				; If zero, get next byte
+Loop5:
+    MOVLW	0xF0h
+    ANDWF	LATB, F, A		; Clear RB0:RB3, which are used to send LCD data
+    BSF		LATB, 5, A		; Drive E pin high
+    MOVF	TABLAT, W, A		; Move byte from table latch to working register
+    ANDLW	0xF0h			; Mask to get only upper nibble
+    SWAPF	WREG, W, A		; swap so that upper nibble is in right position to move to LATB (RB0:RB3)
+    IORWF	PORTB, W, A		; Mask to include the rest of PORTB
+    MOVWF	LATB, A			; Send upper nibble out to LATB
+    BCF		LATB, 5, A		; Drive E pin low so LCD will accept nibble
+
+    MOVLW	0xF0h
+    ANDWF	LATB, F, A		; Clear RB0:RB3, which are used to send LCD data
+    BSF		LATB, 5, A		; Drive E pin high again
+    MOVF	TABLAT,W,A		; Move byte from table latch to working register
+    ANDLW	0x0Fh			; Mask to get only lower nibble
+    IORWF	PORTB,W,A		; Mask to include the rest of PORTB
+    MOVWF	LATB,A			; Send lower nibble out to LATB
+    BCF		LATB,5,A		; Drive E pin low so LCD will accept nibble
+    RCALL	T50			; Wait 50 usec so LCD can process
+	
+    BSF		LATB,4,A		; Drive RS pin high for displayable characters
+    TBLRD+*				; Increment pointer, then get next byte
+    MOVF	TABLAT,F,A		; Is it zero?
+    BNZ		Loop5
+    
+	RETURN
+	
+
+;;;;;;; DisplayV subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; Subroutine to wait XXX ms
-; NOTE - STUDENTS replace XXX with some value of your choosing
-; Choose a suitable value to decrement a counter in a loop structure and 
-; not using an excessive amount of program memory - i.e. don't use 100 nop's
-		
-WaitXXXms:			;   this function depends on the value of cnt, cnt+1 and cntval
-				; note that calulating the delay is done like 
-				; 2 + (((CNT_CYClES * CNT) + CNT+1_CYCLES) * CNT+1) = 2 + (((3 * 0x01) + 4) * 0x01) = 8
-				; where CNT_CYClES & CNT+1_CYCLES are 3 and 4
-				; or in time divide the equation by 4
-				; when using this function the CNTVAL must also be set in order to reset CNT for each CNT+1 
-				; passing CNT or CNT+1 as zero will result in an overflow to a 0xFF,0xFF count down
+; DisplayV taken from Reference: Peatman CH7 LCD
+; This subroutine is called with FSR0 containing the address of a variable
+; display string.  It sends the bytes of the string to the LCD.  The first
+; byte sets the cursor position.  The remaining bytes are displayed, beginning
+; at that position.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	
 
-    DECF CNT, f, A		; Decrement counter
-    
-    BNZ WaitXXXms
-    
-    MOVFF CNTVAL, CNT, A	; if upper byte has value repeat loop
-    DECF CNT+1, f, A		; Decr upper byte
-    
-    BNZ WaitXXXms
-    
-    CLRF CNT, A			; clear counter for good practice
-    
-    RETURN	
+DisplayV:
+    BCF		LATB, 4, A		;Drive RS pin low for cursor positioning code
+Loop6:
+    MOVLW	0xF0h
+    ANDWF	LATB, F, A		;Clear RB0:RB3, which are used to send LCD data
+    BSF		LATB, 5, A		;Drive E pin high
+    MOVF	INDF0, W, A		;Move byte from FSR to working register
+    ANDLW	0xF0h			;Mask to get only upper nibble
+    SWAPF	WREG, W, A		;swap so that upper nibble is in right position to move to LATB (RB0:RB3)
+    IORWF	PORTB, W, A		;Mask to include the rest of PORTB
+    MOVWF	LATB, A			;Send upper nibble out to LATB
+    BCF		LATB, 5, A		;Drive E pin low so LCD will accept nibble
+	
+    MOVLW	0xF0h
+    ANDWF	LATB, F, A		;Clear RB0:RB3, which are used to send LCD data
+    BSF		LATB, 5, A		;Drive E pin high again
+    MOVF	INDF0, W, A		;Move byte from table latch to working register
+    ANDLW	0x0Fh			;Mask to get only lower nibble
+    IORWF	PORTB, W, A		;Mask to include the rest of PORTB
+    MOVWF	LATB, A			;Send lower nibble out to LATB
+    BCF		LATB, 5, A		;Drive E pin low so LCD will accept nibble
+    RCALL	T50			;Wait 50 usec so LCD can process
+	  
+    BSF		LATB, 4, A		;Drive RS pin high for displayable characters
+    MOVF	PREINC0, W, A		;Increment pointer, then get next byte
+    BNZ		Loop6
+        RETURN
 
+	
+;;;;;; ByteDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Display whatever is in BYTE with the const wrappers.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	
+ByteDisplay:
+    MOVF	DutyBig, W, A		; Add 0x30 to value to convert to ascii
+    ADDLW	0x30h
+    MOVWF	INTVAL+1, A		; Move Ascii value into storage
+    LFSR	0, INTVAL		; Load file Select Register
+    RCALL	DisplayV
+  
+    MOVF	DUTY, W, A		; Repeat above
+    ADDLW	0x30h
+    MOVWF	DECVAL+1, A
+    LFSR	0, DECVAL
+    RCALL	DisplayV
+	
+    BRA		loop	
+	
+	
+;;;;;;; T50 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; T50 modified version of T40 taken from Reference: Peatman CH 7 LCD
+; Pause for 50 microseconds or 50/0.25 = 200 instruction cycles.
+; Assumes 16/4 = 4 MHz internal instruction rate (250 ns)
+; rcall(2) + movlw(1) + movwf(1) + COUNT*3 - lastBNZ(1) + return(2) = 200 
+; Then COUNT = 195/3
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+        
+T50:
+    MOVLW	195/3			; Each loop L4 takes 3 ins cycles
+    MOVWF	CNT, A		    
+L4:
+    DECF	CNT, F, A
+    BNZ		L4
+	RETURN	
+	
+    
+;;;;;;;; LoopTime subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; This subroutine waits for Timer0 to complete its ten millisecond count
+;; sequence. It does so by waiting for sixteen-bit Timer0 to roll over. To obtain
+;; a period of 10ms/250ns = 40000 clock periods, it needs to remove
+;; 65536-40000 or 25536 counts from the sixteen-bit count sequence.  
+;; Taken from lab4_examble.asm
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	
+timerval    equ	25536 
+loopval	    equ 64730
+    
+Wait10ms:
+    BTFSS 	INTCON, 2, A		; Read Timer0 TMR0IF rollover flag and ...
+    BRA		Wait10ms		; Loop if timer has not rolled over
+    MOVLF  	high timerval, TMR0H, A	; Then write the timer values into
+    MOVLF  	low timerval, TMR0L, A	; the timer high and low registers
+    BCF  	INTCON, 2, A		; Clear Timer0 TMR0IF rollover flag
+    
+	RETURN	
+
+	
 ;;;;;;; Wait1sec subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to wait 1 sec based on calling WaitXXXms YYY times or up to 3 nested loops
-				
+; calls wait10ms CNT times, can vary the delay	
 Wait1sec:
-				    ; Uses the equation	    0.5 + (((0.75 * CNT) + 1) * CNT+1) = microseconds
-				    ; re-write in terms of y(CNT+1)   (25,000 - 0.5) / ((0.75 * CNT) + 1) = CNT+1 
-				    ; pairs of (CNT, CNT+1) that are close
-				    ; (F2, 89) 25.003ms fast
-				    ; (EB, 8D) 24.99275ms slow
-				    ; (E3, 92) 25.003ms fast
-				    ; (D3, 9D) 25.00275 fast
-				    ; (CF, A0) 25.0005ms fast
-				    ; (84, FA) 25.0005ms fast
+    RCALL	Wait10ms
+    DECF	CNT, F, A		; decrement second counter
+    BNZ		Wait1sec
+    MOVLF	100, CNT, A		; reset CNT
     
-    MOVLF 0x84h, CNT, A		    ; A setup for WaitXXXms
-    MOVLF 0xFAh, CNT+1, A	    ; These values will create a perfect 10,000 us timer
-    MOVFF CNT, CNTVAL, A	    ; need to set CNTVAL to CNT to iterate properly
-    
-    RCALL WaitXXXms
-    
-    DECF SECCNT, f, A		    ; decrement second counter
-    
-    BNZ Wait1sec
-    
-    MOVFF SECCNTVAL, SECCNT, A	    ; if upper byte has value repeat loop
-    DECF SECCNT+1, f, A		    ; Decr upper byte
-    
-    BNZ Wait1sec
-     
-    RETURN	
-
+	RETURN		
+	
+	
 ;;;;;;; Check_SW1 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to check the status of RD3 button and change RD2 (ASEN5067 ONLY)
 				
-Check_SW1:
-    MOVFF PORTD, WREG, A		; Copy the value of PORTD to WREG
-    ANDLW 0x08h				; mask the value of PORTD to isolate RD3
-    MOVWF RD3TEMP, A			; save this value incase the button was not pressed
-    XORWF RD3TRACKER, W, A		; using xor and & we can tell if the old value was
-    ANDWF RD3TRACKER, W, A		; high and the new is low, meaning the button was pressed
-    BNZ	  Toggle_RD2			; toggle RD2
-    RCALL Reset_Button			; Reset the trackers if no toggle
-
-;;;;;;; Check_RPG subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to read the values of the RPG and display on RJ2 and RJ3
-				
-Check_RPG:
-    MOVFF PORTD, WREG, A		; Copy PORTD into the WREG
-    ANDLW 0x03				; mask WREG to isolate RD0 & RD1
-    RLNCF WREG, W, A			; Rotate right twice to align bits
-    RLNCF WREG, W, A			; ignore the carry bit to prevent garbage
-    MOVWF LATJ, A			; write to PORTJ using LATJ
-    CLRF WREG, A			; Clear WREG to prevent garbage
+CheckSW1:
+    MOVFF	PORTE, WREG, A		; Copy the value of PORTD to WREG
+    ANDLW	0x08h			; mask the value of PORTD to isolate RE3
+    MOVWF	RE3TEMP, A		; save this value incase the button was not pressed
+    XORWF	RE3TRACKER, W, A	; using xor and & we can tell if the old value was
+    ANDWF	RE3TRACKER, W, A	; high and the new is low, meaning the button was pressed
+    BNZ		INCRDuty		; toggle RD2
+    RCALL	ResetButton		; Reset the trackers if no toggle
+	RETURN
     
-    RETURN	 
-    
-;;;;;;; Toggle_RD2 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to toggle the value of RD2
-    
-Toggle_RD2:
-    BTG LATD, 2, A			; Toggle RD2
-    RCALL Reset_Button			; Reset the button trackers
     
 ;;;;;;; Button_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to handle sw debouncing
 
-Button_Handler:  
-    DECF BOUNCECNT, A			; Decrement debounce counter
-    BZ Check_SW1			; If Debounce safe check button
+ButtonHandler:  
+    DECF	BOUNCECNT, A		; Decrement debounce counter
+    BZ		CheckSW1		; If Debounce safe check button
     
-    RETURN
-    
-;;;;;;; Toggle_RD4 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to toggle the value of RD4
-    
-Toggle_RD4:
-    BTG LATD, 4, A			; Toggle RD4
-    MOVLF 0x64h, TOGGLECNT, A		; Reset Toggle delay counter
-    MOVLF 0x14h, TOGGLECNT+1, A
-    
-    RETURN
-    
-;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to handle RD4 toggle timing
-    
-Toggle_Handler:
-    DECF TOGGLECNT, A			; Decrement toggle lower delay counter
-    BZ Toggle_Handler2			; handle upper counter if zero
-    
-    RETURN
-    
-;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to handle RD4 toggle timing
-    
-Toggle_Handler2:
-    DECF TOGGLECNT+1, A			; Decrement toggle upper counter
-    BZ Toggle_RD4			; If zero Toggle RD4
-    MOVLF 0x64h, TOGGLECNT, A		; otherwise reset toggle lower delay counter
-    
-    RETURN
+	RETURN
 
+	
+;;;;;;; Toggle_RD2 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to toggle the value of RD2
+    
+INCRDuty:
+    MOVF	DutyBig, W, A
+    XORLW	2
+    BZ		INCRDutyBig
+    MOVLW	2			; Put 2 in working reg
+    ADDWF	DUTY, W, A		; Add WREG to Duty (Decimal)
+    MOVWF	DUTY, A			; Put WREG back in Duty
+    XORLW	0x0Ah			; Check if Duty is 10
+    BZ		INCRDutyBig		; Resets Duty and incrments or resets DutyBig
+    RCALL	ResetButton		; Reset the button trackers	
+	RETURN
+    
+    
+INCRDutyBig:
+    MOVLF	0, DUTY, A		; Reset Duty
+    MOVF	DutyBig, W, A		; Put 2 in WREG
+    SUBLW	1			; Subtract duty from WREG
+    BNZ		ResetDutyBig		; If zero roll over
+    MOVLF	2, DutyBig, A		; Otherwise increment DutyBig
+	RETURN
+	
+ResetDutyBig:
+    MOVLF	1, DutyBig, A
+	RETURN
+	
+    
 ;;;;;;; Reset_Button subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to reset the values tracking RD3
     
-Reset_Button:
-    MOVLF 0x04h, BOUNCECNT, A		; Reset Debounce counter
-    MOVFF RD3TEMP, RD3TRACKER, A	; save RD3 value
-    CLRF RD3TEMP, A			; clear garbage
-    CLRF WREG, A
+ResetButton:
+    MOVLF	1, BOUNCECNT, A	    ; Reset Debounce counter
+    MOVFF	RE3TEMP, RE3TRACKER, A	; save RD3 value
+    CLRF	RE3TEMP, A		; clear garbage
+    CLRF	WREG, A
     
-    RETURN
+	RETURN	
+	
+	
+SetPWM:
+    DECF	PERIODCNT, A
+    BZ		Reset_Cycle
+	RETURN
+	
+Reset_Cycle:
+    BTG		LATC, 2, A
+    MOVLW	0x05h
+    MULWF	DutyBig, A
+    MOVF	DUTY, W, A
+    ADDWF	PRODL, W, A
+    CLRF	PRODL, A
+    BTFSS	PORTC, 2, A
+    BRA		DownCycle
+    MOVWF	PERIODCNT, F, A
+    BRA		ByteDisplay
+    
+  
+DownCycle:
+    SUBLW	100
+    MOVWF	PERIODCNT, A
+    BRA		ByteDisplay
+	
+;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle RD4 toggle timing
+    
+BlinkAlive:
+    DECFSZ	ALIVECNT, F, A		; Decrement toggle delay counter
+	RETURN
+    MOVLF	125, ALIVECNT, A
+    DECFSZ	ALIVECNT+1, F, A
+	RETURN
+    MOVLF	10, ALIVECNT+1, A	; reset counter
+    BTG		LATE, 4, A		; toggle LED
+
+	RETURN
+
     
     END     resetVec		    ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -11185,7 +11185,6 @@ loop:
 
     RCALL WaitXXXms ; Normalizer sets loop to 500us
 
-
     BRA loop
 
 ;;;;;;;;;;;;;;;;;;;;;; Initialization Routine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11231,8 +11230,8 @@ Initial:
     MOVLF 0x01, TOGGLECNT, A
     MOVLF 0x01, TOGGLECNT+1, A
 
-    MOVLF 0x82h, CNTVAL, A ; A setup for WaitXXXms
-    MOVLF 0x05h, CNTVAL+1, A ; These values normalize loop to 500us
+    MOVLF 0xFFh, CNTVAL, A ; A setup for WaitXXXms
+    MOVLF 0xFFh, CNTVAL+1, A ; These values normalize loop to 500us
          ; Without normalizing the counters cant count long enough to delay for 1 second
     MOVLF 0x01h, BOUNCECNT, A ; initialize debounce counter to prevent overflow
 

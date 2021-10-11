@@ -14,7 +14,7 @@
 $build/default/production/src/lab3_orig.o
 resetVec CODE 0 0 0 6 1
 LoPriISR_Vec CODE 0 18 18 4 1
-code CODE 0 1C 1C 11E 1
+code CODE 0 1C 1C 11C 1
 HiPriISR_Vec CODE 0 8 8 4 1
 udata_acs COMRAM 1 0 0 D 1
 config CONFIG 4 300000 300000 E 1
@@ -38,12 +38,12 @@ BANK8 800-8FF 1
 BANK9 900-9FF 1
 CONST 6-7 1
 CONST C-17 1
-CONST 13A-1FFFF 1
+CONST 138-1FFFF 1
 IDLOC 200000-200007 1
 SMALLCONST 1000-1FFFF 1
 CODE 6-7 1
 CODE C-17 1
-CODE 13A-1FFFF 1
+CODE 138-1FFFF 1
 BANK10 A00-AFF 1
 BANK11 B00-BFF 1
 BANK12 C00-CFF 1
@@ -52,7 +52,7 @@ BANK14 E00-EFF 1
 BANK15 F00-F15 1
 BIGRAM 6-7 1
 BIGRAM C-17 1
-BIGRAM 13A-F15 1
+BIGRAM 138-F15 1
 COMRAM D-5F 1
 EEDATA F00000-F003FF 1
 MEDIUMCONST 1000-FFFF 1
@@ -173,34 +173,33 @@ F8 code CODE >456:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 FA code CODE >458:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 FC code CODE >465:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 FE code CODE >466:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-100 code CODE >467:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-102 code CODE >468:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+100 code CODE >473:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+102 code CODE >474:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 104 code CODE >476:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-106 code CODE >477:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-108 code CODE >478:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-10A code CODE >485:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-10C code CODE >486:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-10E code CODE >486:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-110 code CODE >486:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-112 code CODE >487:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+106 code CODE >483:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+108 code CODE >484:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+10A code CODE >484:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+10C code CODE >484:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+10E code CODE >485:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+110 code CODE >485:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+112 code CODE >485:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 114 code CODE >487:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-116 code CODE >487:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-118 code CODE >488:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-11A code CODE >495:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-11C code CODE >496:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-11E code CODE >497:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-120 code CODE >504:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-122 code CODE >505:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+116 code CODE >494:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+118 code CODE >495:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+11A code CODE >497:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+11C code CODE >504:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+11E code CODE >505:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+120 code CODE >506:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+122 code CODE >506:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 124 code CODE >506:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-126 code CODE >506:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-128 code CODE >506:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-12A code CODE >507:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-12C code CODE >510:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-12E code CODE >510:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-130 code CODE >510:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-132 code CODE >511:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-136 code CODE >512:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
-138 code CODE >513:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+126 code CODE >508:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+128 code CODE >515:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+12A code CODE >515:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+12C code CODE >515:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+12E code CODE >516:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+132 code CODE >517:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+134 code CODE >518:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
+136 code CODE >520:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 # %SYMTAB Section
 # An enumeration of all symbols in the program.
 # The beginning of the section is indicated by %SYMTAB.
@@ -213,7 +212,7 @@ FE code CODE >466:C:\Users\scott\Microavionics\Labs\Lab3.X\src/lab3_orig.asm
 # was defined in a psect then <psect> will be "-". File-name
 # is the name of the object file in which the symbol was defined.
 %SYMTAB
-__Hspace_0 13A 0 ABS 0 - -
+__Hspace_0 138 0 ABS 0 - -
 __Hspace_1 D 0 ABS 0 - -
 __Hspace_3 0 0 ABS 0 - -
 __Hspace_4 60000E 0 ABS 0 - -
@@ -245,7 +244,7 @@ __Hcode 1C 0 ABS 0 code -
 __Hdata 1C 0 ABS 0 data -
 __Lcode 1C 0 ABS 0 code -
 __Ldata 1C 0 ABS 0 data -
-__S0 13A 0 ABS 0 - -
+__S0 138 0 ABS 0 - -
 __S1 D 0 ABS 0 - -
 __S3 0 0 ABS 0 - -
 __Ludata_bank10 1C 0 ABS 0 udata_bank10 -
@@ -301,7 +300,7 @@ __Ludata_acs 1C 0 ABS 0 udata_acs -
 # All other numeric quantities are in decimal.
 %SEGMENTS
 resetVec 0 0 0 6 1
-LoPriISR_Vec 0 18 18 122 1
+LoPriISR_Vec 0 18 18 120 1
 HiPriISR_Vec 0 8 8 4 1
 udata_acs 1 0 0 D 1
 # %NOTES Section

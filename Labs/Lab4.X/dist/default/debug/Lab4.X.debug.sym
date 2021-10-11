@@ -70,7 +70,7 @@ LoPriISR_Vec 18 27F CODE 18 0
 udata_acs 0 E COMRAM 0 1
 romData 280 29B CONST 280 0
 %locals
-build/default/production/_ext/1797220267/scott-mitchell-lab4.o
+build/default/debug/_ext/1797220267/scott-mitchell-lab4.o
 C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\proc\\pic18f87k22.inc
 ../Lab4/src/scott-mitchell-lab4.asm
 347 1C 0 CODE 0
