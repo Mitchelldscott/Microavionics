@@ -61,21 +61,21 @@ RADIX DEC
 ; LIST C = 160, N = 0, X = OFF
 ; Include File:
 
-# 1 "/Applications/microchip/xc8/v2.32/pic/include/xc.inc" 1 3
+# 1 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\xc.inc" 1 3
 
 
 
 
-# 1 "/Applications/microchip/xc8/v2.32/pic/include/pic18.inc" 1 3
+# 1 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\pic18.inc" 1 3
 
 
 
 
 
-# 1 "/Applications/microchip/xc8/v2.32/pic/include/pic18_chip_select.inc" 1 3
-# 1550 "/Applications/microchip/xc8/v2.32/pic/include/pic18_chip_select.inc" 3
-# 1 "/Applications/microchip/xc8/v2.32/pic/include/proc/pic18f87k22.inc" 1 3
-# 48 "/Applications/microchip/xc8/v2.32/pic/include/proc/pic18f87k22.inc" 3
+# 1 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\pic18_chip_select.inc" 1 3
+# 1550 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\pic18_chip_select.inc" 3
+# 1 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\proc\\pic18f87k22.inc" 1 3
+# 48 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\proc\\pic18f87k22.inc" 3
 PMD3 equ 0F16h
 
 PMD3_TMR12MD_POSN equ 0000h
@@ -10926,7 +10926,7 @@ TOSH_TOSH_MASK equ 00FFh
 
 
 TOSU equ 0FFFh
-# 12494 "/Applications/microchip/xc8/v2.32/pic/include/proc/pic18f87k22.inc" 3
+# 12494 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\proc\\pic18f87k22.inc" 3
 psect udata_acs,class=COMRAM,space=1,noexec,lowdata
 
 psect udata_bank0,class=BANK0,space=1,noexec,lowdata
@@ -10949,8 +10949,9 @@ psect udata,class=RAM,space=1,noexec
 psect code,class=CODE,space=0,reloc=2
 psect data,class=CONST,space=0,reloc=2,noexec
 psect edata,class=EEDATA,space=3,delta=2,noexec
-# 1551 "/Applications/microchip/xc8/v2.32/pic/include/pic18_chip_select.inc" 2 3
-# 7 "/Applications/microchip/xc8/v2.32/pic/include/pic18.inc" 2 3
+# 1550 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\pic18_chip_select.inc" 2 3
+# 6 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\pic18.inc" 2 3
+
 
 
 
@@ -11014,8 +11015,9 @@ addwfc FSR1H,c
 stk_offset SET 0
 auto_size SET 0
 ENDM
-# 6 "/Applications/microchip/xc8/v2.32/pic/include/xc.inc" 2 3
-# 153 "../Lab4/src/scott-mitchell-lab4.asm" 2
+# 5 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\xc.inc" 2 3
+# 152 "../Lab4/src/scott-mitchell-lab4.asm" 2
+
 
 ; PIC18F87K22 Configuration Bit Settings
 
@@ -11271,7 +11273,7 @@ Initial:
     MOVLF 10, ALIVECNT+1, A
     MOVLF 5, PERIODCNT, A
     MOVLF 10, BOUNCECNT, A
-    MOVLF 0, DUTY, A
+    MOVLF 8, DUTY, A
     MOVLF 1, DutyBig, A
 
     MOVLF 0xC3h, INTVAL, A
@@ -11499,7 +11501,7 @@ Wait1sec:
 ; Subroutine to check the status of ((PORTD) and 0FFh), 3, a button and change ((PORTD) and 0FFh), 2, a (ASEN5067 ONLY)
 
 CheckSW1:
-    MOVFF LATE, WREG, A ; Copy the value of PORTD to WREG
+    MOVFF PORTE, WREG, A ; Copy the value of PORTD to WREG
     ANDLW 0x08h ; mask the value of PORTD to isolate ((PORTE) and 0FFh), 3, a
     MOVWF RE3TEMP, A ; save this value incase the button was not pressed
     XORWF RE3TRACKER, W, A ; using xor and & we can tell if the old value was
@@ -11531,7 +11533,7 @@ INCRDuty:
     BZ DECRDutyBig
     MOVLW 2 ; Put 2 in working reg
     ADDWF DUTY, W, A ; Add WREG to Duty (Decimal)
-    MOVWF DUTY, A ; Put WREG back in Duty
+    MOVWF DUTY, A ; Put duty back in DUTY
     XORLW 0x0Ah ; Check if Duty is 10
     BZ INCRDutyBig ; Resets Duty and incrments or resets DutyBig
     RCALL ResetButton ; Reset the button trackers
@@ -11606,9 +11608,9 @@ BlinkAlive:
  RETURN
 
 UpdateDisplay:
-    BTFSS PWUPDATE, 1, A
+    BTFSS PWUPDATE, 0, A
  RETURN
-    BTFSS DOWNCYCLE, 1, A
+    BTFSS DOWNCYCLE, 0, A
  RETURN
     MOVLF 0, PWUPDATE, A
     BRA PWDisplay

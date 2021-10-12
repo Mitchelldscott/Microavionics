@@ -354,10 +354,10 @@ loop:
     
     RCALL	SetPWM
 
-Delay:
+Delay1:
     
     BTFSS 	INTCON, 2, A		; Read Timer0 TMR0IF rollover flag and ...
-    BRA		Delay			; Loop if timer has not rolled over
+    BRA		Delay1			; Loop if timer has not rolled over
     MOVLF  	high loopval, TMR0H, A	; Then write the timer values into
     MOVLF  	low loopval, TMR0L, A	; the timer high and low registers
     BCF  	INTCON, 2, A
@@ -570,8 +570,13 @@ PWDisplay:
     ADDLW	0x30h
     MOVWF	DECVAL+1, A
     LFSR	0, DECVAL
-    RCALL	DisplayV
-	
+    RCALL	DisplayV	
+Delay2:
+    BTFSS 	INTCON, 2, A		; Read Timer0 TMR0IF rollover flag and ...
+    BRA		Delay2			; Loop if timer has not rolled over
+    MOVLF  	high loopval, TMR0H, A	; Then write the timer values into
+    MOVLF  	low loopval, TMR0L, A	; the timer high and low registers
+    BCF  	INTCON, 2, A
 	RETURN	
 	
 	
@@ -633,7 +638,7 @@ Wait1sec:
 ; Subroutine to check the status of RD3 button and change RD2 (ASEN5067 ONLY)
 				
 CheckSW1:
-    MOVFF	LATE, WREG, A		; Copy the value of PORTD to WREG
+    MOVFF	PORTE, WREG, A		; Copy the value of PORTD to WREG
     ANDLW	0x08h			; mask the value of PORTD to isolate RE3
     MOVWF	RE3TEMP, A		; save this value incase the button was not pressed
     XORWF	RE3TRACKER, W, A	; using xor and & we can tell if the old value was
@@ -665,7 +670,7 @@ INCRDuty:
     BZ		DECRDutyBig
     MOVLW	2			; Put 2 in working reg
     ADDWF	DUTY, W, A		; Add WREG to Duty (Decimal)
-    MOVWF	DUTY, A			; Put WREG back in Duty
+    MOVWF	DUTY, A			; Put duty back in DUTY
     XORLW	0x0Ah			; Check if Duty is 10
     BZ		INCRDutyBig		; Resets Duty and incrments or resets DutyBig
     RCALL	ResetButton		; Reset the button trackers	
@@ -676,12 +681,14 @@ INCRDutyBig:
     MOVLF	0, DUTY, A		; Reset Duty
     MOVLF	2, DutyBig, A		; Otherwise increment DutyBig
     CLRF	WREG, A
+    RCALL	ResetButton
 	RETURN
 	
 DECRDutyBig:
     MOVLF	0, DUTY, A
     MOVLF	1, DutyBig, A
     CLRF	WREG, A
+    RCALL	ResetButton
 	RETURN
 	
     
@@ -709,6 +716,7 @@ CycleEdge:
     MOVLW	0x05h
     MULWF	DutyBig, A
     MOVF	DUTY, W, A
+    RRNCF	WREG, W, A
     ADDWF	PRODL, W, A
     CLRF	PRODL, A
     BTFSS	PORTC, 2, A
@@ -719,7 +727,7 @@ CycleEdge:
     
   
 DownCycle:
-    SUBLW	99		; handle some timing errors on the down cycle
+    SUBLW	99			; handle some timing errors on the down cycle
     MOVWF	PERIODCNT, A
     MOVLF	1, DOWNCYCLE, A
 	RETURN
@@ -740,9 +748,9 @@ BlinkAlive:
 	RETURN
 	
 UpdateDisplay:
-    BTFSS	PWUPDATE, 1, A
+    BTFSS	PWUPDATE, 0, A
 	RETURN
-    BTFSS	DOWNCYCLE, 1, A
+    BTFSS	DOWNCYCLE, 0, A
 	RETURN
     MOVLF	0, PWUPDATE, A
     BRA		PWDisplay

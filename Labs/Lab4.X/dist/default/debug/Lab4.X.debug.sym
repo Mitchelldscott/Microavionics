@@ -71,7 +71,7 @@ udata_acs 0 11 COMRAM 0 1
 romData 2AE 2C9 CONST 2AE 0
 %locals
 build/default/debug/_ext/1797220267/scott-mitchell-lab4.o
-/Applications/microchip/xc8/v2.32/pic/include/proc/pic18f87k22.inc
+C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\proc\\pic18f87k22.inc
 ../Lab4/src/scott-mitchell-lab4.asm
 347 1C 0 CODE 0
 349 1E 0 CODE 0

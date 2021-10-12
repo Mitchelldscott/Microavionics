@@ -43,14 +43,12 @@
 ; Initial - Initialize ports and perform LED sequence
 ; WaitXXXms - Subroutine to wait XXXms
 ; Wait1sec - Subroutine to wait 1 sec
-; Check_SW - Subroutine to check the status of RD3 button and change RD2 (ASEN5067 ONLY)
-; Check_RPG - Read the values of the RPG from RD0 and RD1 and display on RJ2 and RJ3
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Hardware notes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; RPG-A port/pin is RJ2
 ; RPG-B port/pin is RJ3
-# 143 "../Lab4/src/scott-mitchell-lab4.asm"
+# 141 "../Lab4/src/scott-mitchell-lab4.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;; Assembler Directives ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Processor Definition
 PROCESSOR 18F87K22
@@ -11018,7 +11016,7 @@ stk_offset SET 0
 auto_size SET 0
 ENDM
 # 5 "C:\\Program Files\\Microchip\\xc8\\v2.32\\pic\\include\\xc.inc" 2 3
-# 154 "../Lab4/src/scott-mitchell-lab4.asm" 2
+# 152 "../Lab4/src/scott-mitchell-lab4.asm" 2
 
 
 ; PIC18F87K22 Configuration Bit Settings
@@ -11169,7 +11167,9 @@ ALIVECNT: DS 2 ;
 INTVAL: DS 3 ; Reserve 3 bytes for the integer part of the display
 DECVAL: DS 3 ; Reserve 3 bytes for the decimal part of the string
 PERIODCNT: DS 1 ; Track the PWM period
-
+PWUPDATE: DS 1 ;
+DOWNCYCLE: DS 1 ;
+COUNT: DS 1 ;
 
 ; Objects to be defined in Bank 1
 PSECT udata_bank1
@@ -11214,15 +11214,18 @@ PSECT code
 main:
     RCALL Initial ; Call to Initial Routine
 loop:
+    RCALL UpdateDisplay
+
     RCALL BlinkAlive
 
-    RCALL CheckSW1
+    RCALL ButtonHandler
 
     RCALL SetPWM
 
-Delay:
+Delay1:
+
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
-    BRA Delay ; Loop if timer has not rolled over
+    BRA Delay1 ; Loop if timer has not rolled over
     MOVLF high loopval, TMR0H, A ; Then write the timer values into
     MOVLF low loopval, TMR0L, A ; the timer high and low registers
     BCF INTCON, 2, A
@@ -11265,10 +11268,11 @@ Initial:
     CLRF PORTE, A
     CLRF WREG, A
 
+    MOVLF 10, COUNT, A
     MOVLF 125, ALIVECNT, A
     MOVLF 10, ALIVECNT+1, A
     MOVLF 5, PERIODCNT, A
-    MOVLF 1, BOUNCECNT, A
+    MOVLF 10, BOUNCECNT, A
     MOVLF 0, DUTY, A
     MOVLF 1, DutyBig, A
 
@@ -11420,10 +11424,10 @@ Loop6:
 
 ;;;;;; ByteDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Display whatever is in BYTE with the const wrappers.
+; Display whatever is in Duty and DutyBig with the const wrappers.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ByteDisplay:
+PWDisplay:
     MOVF DutyBig, W, A ; Add 0x30 to value to convert to ascii
     ADDLW 0x30h
     MOVWF INTVAL+1, A ; Move Ascii value into storage
@@ -11435,8 +11439,13 @@ ByteDisplay:
     MOVWF DECVAL+1, A
     LFSR 0, DECVAL
     RCALL DisplayV
-
-    BRA loop
+Delay2:
+    BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
+    BRA Delay2 ; Loop if timer has not rolled over
+    MOVLF high loopval, TMR0H, A ; Then write the timer values into
+    MOVLF low loopval, TMR0L, A ; the timer high and low registers
+    BCF INTCON, 2, A
+ RETURN
 
 
 ;;;;;;; T50 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11450,9 +11459,9 @@ ByteDisplay:
 
 T50:
     MOVLW 195/3 ; Each loop L4 takes 3 ins cycles
-    MOVWF CNT, A
+    MOVWF COUNT, A
 L4:
-    DECF CNT, F, A
+    DECF COUNT, F, A
     BNZ L4
  RETURN
 
@@ -11467,7 +11476,7 @@ L4:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 timerval equ 25536
-loopval equ 64730
+loopval equ 64736
 
 Wait10ms:
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
@@ -11492,7 +11501,7 @@ Wait1sec:
  RETURN
 
 
-;;;;;;; Check_SW1 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;; ButtonHandler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to check the status of ((PORTD) and 0FFh), 3, a button and change ((PORTD) and 0FFh), 2, a (ASEN5067 ONLY)
 
@@ -11502,8 +11511,8 @@ CheckSW1:
     MOVWF RE3TEMP, A ; save this value incase the button was not pressed
     XORWF RE3TRACKER, W, A ; using xor and & we can tell if the old value was
     ANDWF RE3TRACKER, W, A ; high and the new is low, meaning the button was pressed
-    BNZ INCRDuty ; toggle ((PORTD) and 0FFh), 2, a
-    RCALL ResetButton ; Reset the trackers if no toggle
+    BNZ INCRDuty ; Increment the duty cycle
+    RCALL ResetButton ; Reset the trackers if no press
  RETURN
 
 
@@ -11518,17 +11527,18 @@ ButtonHandler:
  RETURN
 
 
-;;;;;;; Toggle_RD2 subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;; INCRDuty subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; Subroutine to toggle the value of ((PORTD) and 0FFh), 2, a
+; Subroutine to increment the value of the pwm signal
 
 INCRDuty:
+    MOVLF 1, PWUPDATE, A
     MOVF DutyBig, W, A
     XORLW 2
-    BZ INCRDutyBig
+    BZ DECRDutyBig
     MOVLW 2 ; Put 2 in working reg
     ADDWF DUTY, W, A ; Add WREG to Duty (Decimal)
-    MOVWF DUTY, A ; Put WREG back in Duty
+    MOVWF DUTY, A ; Put duty back in DUTY
     XORLW 0x0Ah ; Check if Duty is 10
     BZ INCRDutyBig ; Resets Duty and incrments or resets DutyBig
     RCALL ResetButton ; Reset the button trackers
@@ -11537,14 +11547,16 @@ INCRDuty:
 
 INCRDutyBig:
     MOVLF 0, DUTY, A ; Reset Duty
-    MOVF DutyBig, W, A ; Put 2 in WREG
-    SUBLW 1 ; Subtract duty from WREG
-    BNZ ResetDutyBig ; If zero roll over
     MOVLF 2, DutyBig, A ; Otherwise increment DutyBig
+    CLRF WREG, A
+    RCALL ResetButton
  RETURN
 
-ResetDutyBig:
+DECRDutyBig:
+    MOVLF 0, DUTY, A
     MOVLF 1, DutyBig, A
+    CLRF WREG, A
+    RCALL ResetButton
  RETURN
 
 
@@ -11553,7 +11565,7 @@ ResetDutyBig:
 ; Subroutine to reset the values tracking ((PORTD) and 0FFh), 3, a
 
 ResetButton:
-    MOVLF 1, BOUNCECNT, A ; Reset Debounce counter
+    MOVLF 10, BOUNCECNT, A ; Reset Debounce counter
     MOVFF RE3TEMP, RE3TRACKER, A ; save ((PORTD) and 0FFh), 3, a value
     CLRF RE3TEMP, A ; clear garbage
     CLRF WREG, A
@@ -11563,26 +11575,30 @@ ResetButton:
 
 SetPWM:
     DECF PERIODCNT, A
-    BZ Reset_Cycle
+    BZ CycleEdge
  RETURN
 
-Reset_Cycle:
+
+CycleEdge:
     BTG LATC, 2, A
     MOVLW 0x05h
     MULWF DutyBig, A
     MOVF DUTY, W, A
+    RRNCF WREG, W, A
     ADDWF PRODL, W, A
     CLRF PRODL, A
     BTFSS PORTC, 2, A
     BRA DownCycle
     MOVWF PERIODCNT, F, A
-    BRA ByteDisplay
+    MOVLF 0, DOWNCYCLE, A
+ RETURN
 
 
 DownCycle:
-    SUBLW 100
+    SUBLW 99 ; handle some timing errors on the down cycle
     MOVWF PERIODCNT, A
-    BRA ByteDisplay
+    MOVLF 1, DOWNCYCLE, A
+ RETURN
 
 ;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -11598,6 +11614,14 @@ BlinkAlive:
     BTG LATE, 4, A ; toggle LED
 
  RETURN
+
+UpdateDisplay:
+    BTFSS PWUPDATE, 0, A
+ RETURN
+    BTFSS DOWNCYCLE, 0, A
+ RETURN
+    MOVLF 0, PWUPDATE, A
+    BRA PWDisplay
 
 
     END resetVec ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -13,11 +13,11 @@
 %PSECTS
 $build/default/production/_ext/1797220267/scott-mitchell-lab4.o
 resetVec CODE 0 0 0 6 1
-romData CONST 0 280 280 1C 1
+romData CONST 0 2C6 2C6 1C 1
 LoPriISR_Vec CODE 0 18 18 4 1
-code CODE 0 1C 1C 264 1
+code CODE 0 1C 1C 2AA 1
 HiPriISR_Vec CODE 0 8 8 4 1
-udata_acs COMRAM 1 0 0 F 1
+udata_acs COMRAM 1 0 0 12 1
 config CONFIG 4 300000 300000 E 1
 # %UNUSED Section
 # This section enumerates the unused ranges of each CLASS. Each entry
@@ -39,12 +39,12 @@ BANK8 800-8FF 1
 BANK9 900-9FF 1
 CONST 6-7 1
 CONST C-17 1
-CONST 29C-1FFFF 1
+CONST 2E2-1FFFF 1
 IDLOC 200000-200007 1
 SMALLCONST 1000-1FFFF 1
 CODE 6-7 1
 CODE C-17 1
-CODE 29C-1FFFF 1
+CODE 2E2-1FFFF 1
 BANK10 A00-AFF 1
 BANK11 B00-BFF 1
 BANK12 C00-CFF 1
@@ -53,8 +53,8 @@ BANK14 E00-EFF 1
 BANK15 F00-F15 1
 BIGRAM 6-7 1
 BIGRAM C-17 1
-BIGRAM 29C-F15 1
-COMRAM F-5F 1
+BIGRAM 2E2-F15 1
+COMRAM 12-5F 1
 EEDATA F00000-F003FF 1
 MEDIUMCONST 1000-FFFF 1
 MEDIUMCONST 11000-1FFFF 1
@@ -76,148 +76,148 @@ $build/default/production/_ext/1797220267/scott-mitchell-lab4.o
 8 HiPriISR_Vec CODE >335:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 0 resetVec CODE >328:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 2 resetVec CODE >329:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-280 romData CONST >315:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-287 romData CONST >318:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-291 romData CONST >321:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2C6 romData CONST >315:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2CD romData CONST >318:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2D7 romData CONST >321:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 1C code CODE >347:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 1E code CODE >349:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 20 code CODE >351:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 22 code CODE >353:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-24 code CODE >356:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-26 code CODE >357:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-28 code CODE >358:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-2A code CODE >358:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-2C code CODE >358:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-2E code CODE >359:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-30 code CODE >359:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-32 code CODE >359:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-34 code CODE >360:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-36 code CODE >361:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-38 code CODE >366:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-3A code CODE >367:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-3C code CODE >367:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-3E code CODE >367:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-40 code CODE >369:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-42 code CODE >370:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-44 code CODE >370:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-46 code CODE >370:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-48 code CODE >372:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-4A code CODE >373:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-4C code CODE >373:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-4E code CODE >373:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-50 code CODE >375:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-52 code CODE >375:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-54 code CODE >375:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-56 code CODE >376:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-58 code CODE >376:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-5A code CODE >376:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-5C code CODE >377:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-5E code CODE >377:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-60 code CODE >377:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-62 code CODE >378:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-64 code CODE >378:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-66 code CODE >378:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-68 code CODE >379:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-6A code CODE >379:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-6C code CODE >379:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-6E code CODE >380:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-70 code CODE >382:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-72 code CODE >383:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-74 code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-76 code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-78 code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-7A code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-7C code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-7E code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-80 code CODE >386:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-82 code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-84 code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-86 code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-88 code CODE >389:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-8A code CODE >391:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-8C code CODE >391:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-8E code CODE >391:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-90 code CODE >392:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-92 code CODE >394:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-94 code CODE >394:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-96 code CODE >394:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-98 code CODE >395:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-9A code CODE >397:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-9C code CODE >398:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-9E code CODE >400:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-A0 code CODE >400:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-A2 code CODE >400:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-A4 code CODE >401:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-A6 code CODE >401:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-A8 code CODE >401:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-AA code CODE >402:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-AC code CODE >402:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-AE code CODE >402:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-B0 code CODE >403:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-B2 code CODE >403:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-B4 code CODE >403:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-B6 code CODE >404:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-B8 code CODE >404:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-BA code CODE >404:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-BC code CODE >405:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-BE code CODE >405:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-C0 code CODE >405:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-C2 code CODE >407:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-C4 code CODE >407:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-C6 code CODE >407:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-C8 code CODE >408:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-CA code CODE >408:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-CC code CODE >408:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-CE code CODE >409:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-D0 code CODE >411:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-D2 code CODE >411:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-D4 code CODE >411:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-D6 code CODE >412:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-D8 code CODE >412:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-DA code CODE >412:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-DC code CODE >413:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-DE code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-E0 code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-E2 code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-E4 code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-E6 code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-E8 code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-EA code CODE >416:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-EC code CODE >418:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-F0 code CODE >420:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-F2 code CODE >421:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-F4 code CODE >423:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-F6 code CODE >425:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-F8 code CODE >425:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+24 code CODE >355:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+26 code CODE >359:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+28 code CODE >360:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2A code CODE >361:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2C code CODE >361:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2E code CODE >361:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+30 code CODE >362:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+32 code CODE >362:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+34 code CODE >362:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+36 code CODE >363:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+38 code CODE >364:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+3A code CODE >369:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+3C code CODE >370:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+3E code CODE >370:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+40 code CODE >370:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+42 code CODE >372:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+44 code CODE >373:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+46 code CODE >373:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+48 code CODE >373:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+4A code CODE >375:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+4C code CODE >376:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+4E code CODE >376:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+50 code CODE >376:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+52 code CODE >378:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+54 code CODE >378:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+56 code CODE >378:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+58 code CODE >379:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+5A code CODE >379:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+5C code CODE >379:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+5E code CODE >380:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+60 code CODE >380:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+62 code CODE >380:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+64 code CODE >381:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+66 code CODE >381:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+68 code CODE >381:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+6A code CODE >382:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+6C code CODE >382:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+6E code CODE >382:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+70 code CODE >383:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+72 code CODE >385:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+74 code CODE >386:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+76 code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+78 code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+7A code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+7C code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+7E code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+80 code CODE >388:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+82 code CODE >389:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+84 code CODE >391:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+86 code CODE >391:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+88 code CODE >391:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+8A code CODE >392:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+8C code CODE >394:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+8E code CODE >394:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+90 code CODE >394:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+92 code CODE >395:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+94 code CODE >397:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+96 code CODE >397:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+98 code CODE >397:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+9A code CODE >398:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+9C code CODE >400:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+9E code CODE >401:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+A0 code CODE >403:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+A2 code CODE >403:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+A4 code CODE >403:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+A6 code CODE >404:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+A8 code CODE >404:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+AA code CODE >404:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+AC code CODE >405:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+AE code CODE >405:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+B0 code CODE >405:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+B2 code CODE >406:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+B4 code CODE >406:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+B6 code CODE >406:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+B8 code CODE >407:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+BA code CODE >407:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+BC code CODE >407:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+BE code CODE >408:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+C0 code CODE >408:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+C2 code CODE >408:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+C4 code CODE >409:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+C6 code CODE >409:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+C8 code CODE >409:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+CA code CODE >411:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+CC code CODE >411:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+CE code CODE >411:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+D0 code CODE >412:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+D2 code CODE >412:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+D4 code CODE >412:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+D6 code CODE >413:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+D8 code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+DA code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+DC code CODE >415:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+DE code CODE >416:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+E0 code CODE >416:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+E2 code CODE >416:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+E4 code CODE >417:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+E6 code CODE >419:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+E8 code CODE >419:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+EA code CODE >419:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+EC code CODE >419:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+EE code CODE >419:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+F0 code CODE >419:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+F2 code CODE >420:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+F4 code CODE >422:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+F8 code CODE >424:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 FA code CODE >425:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-FC code CODE >426:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-FE code CODE >426:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-100 code CODE >426:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-102 code CODE >428:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-104 code CODE >440:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-106 code CODE >440:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-108 code CODE >440:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-10A code CODE >441:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-10C code CODE >442:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-10E code CODE >442:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-110 code CODE >442:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-112 code CODE >442:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-114 code CODE >442:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-116 code CODE >442:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-118 code CODE >443:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-11A code CODE >445:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+FC code CODE >427:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+FE code CODE >429:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+100 code CODE >429:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+102 code CODE >429:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+104 code CODE >430:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+106 code CODE >430:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+108 code CODE >430:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+10A code CODE >432:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+10C code CODE >444:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+10E code CODE >444:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+110 code CODE >444:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+112 code CODE >445:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+114 code CODE >446:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+116 code CODE >446:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+118 code CODE >446:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+11A code CODE >446:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 11C code CODE >446:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-11E code CODE >447:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-120 code CODE >448:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+11E code CODE >446:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+120 code CODE >447:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 122 code CODE >449:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 124 code CODE >450:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 126 code CODE >451:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 128 code CODE >452:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 12A code CODE >453:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-12C code CODE >455:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-12E code CODE >456:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-130 code CODE >457:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-132 code CODE >458:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+12C code CODE >454:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+12E code CODE >455:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+130 code CODE >456:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+132 code CODE >457:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 134 code CODE >459:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 136 code CODE >460:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 138 code CODE >461:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
@@ -225,161 +225,196 @@ FE code CODE >426:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4
 13C code CODE >463:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 13E code CODE >464:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 140 code CODE >465:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-142 code CODE >467:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-144 code CODE >481:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-146 code CODE >482:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-148 code CODE >483:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-14A code CODE >484:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+142 code CODE >466:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+144 code CODE >467:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+146 code CODE >468:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+148 code CODE >469:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+14A code CODE >471:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 14C code CODE >485:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-14E code CODE >487:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-150 code CODE >488:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-152 code CODE >489:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-154 code CODE >490:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+14E code CODE >486:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+150 code CODE >487:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+152 code CODE >488:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+154 code CODE >489:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 156 code CODE >491:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 158 code CODE >492:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 15A code CODE >493:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 15C code CODE >494:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 15E code CODE >495:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-160 code CODE >497:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-162 code CODE >498:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-164 code CODE >499:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-166 code CODE >500:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+160 code CODE >496:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+162 code CODE >497:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+164 code CODE >498:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+166 code CODE >499:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 168 code CODE >501:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 16A code CODE >502:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 16C code CODE >503:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 16E code CODE >504:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 170 code CODE >505:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-172 code CODE >507:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-174 code CODE >508:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-176 code CODE >509:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-178 code CODE >510:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-17A code CODE >512:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-17C code CODE >525:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-17E code CODE >527:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-180 code CODE >528:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-182 code CODE >529:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-184 code CODE >530:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+172 code CODE >506:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+174 code CODE >507:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+176 code CODE >508:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+178 code CODE >509:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+17A code CODE >511:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+17C code CODE >512:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+17E code CODE >513:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+180 code CODE >514:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+182 code CODE >516:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+184 code CODE >529:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 186 code CODE >531:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 188 code CODE >532:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 18A code CODE >533:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 18C code CODE >534:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 18E code CODE >535:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-190 code CODE >537:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-192 code CODE >538:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-194 code CODE >539:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-196 code CODE >540:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+190 code CODE >536:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+192 code CODE >537:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+194 code CODE >538:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+196 code CODE >539:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 198 code CODE >541:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 19A code CODE >542:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 19C code CODE >543:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 19E code CODE >544:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 1A0 code CODE >545:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1A2 code CODE >547:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1A4 code CODE >548:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1A6 code CODE >549:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1A8 code CODE >550:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1AA code CODE >559:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1AC code CODE >560:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1AE code CODE >561:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1B0 code CODE >562:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1B4 code CODE >563:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1A2 code CODE >546:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1A4 code CODE >547:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1A6 code CODE >548:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1A8 code CODE >549:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1AA code CODE >551:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1AC code CODE >552:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1AE code CODE >553:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1B0 code CODE >554:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1B2 code CODE >563:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1B4 code CODE >564:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 1B6 code CODE >565:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 1B8 code CODE >566:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1BA code CODE >567:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1BC code CODE >568:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1C0 code CODE >569:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1BC code CODE >567:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1BE code CODE >569:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1C0 code CODE >570:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 1C2 code CODE >571:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1C4 code CODE >584:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1C6 code CODE >585:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1C8 code CODE >587:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1CA code CODE >588:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1CC code CODE >589:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1CE code CODE >605:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1D0 code CODE >606:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1D2 code CODE >607:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1D4 code CODE >607:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1D6 code CODE >607:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1D8 code CODE >608:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1DA code CODE >608:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1DC code CODE >608:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1DE code CODE >609:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1E0 code CODE >611:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1E2 code CODE >619:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1E4 code CODE >620:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1E6 code CODE >621:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1E8 code CODE >622:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1EA code CODE >622:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1EC code CODE >622:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1EE code CODE >624:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1F0 code CODE >632:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1F4 code CODE >633:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1F6 code CODE >634:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1F8 code CODE >635:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1FA code CODE >636:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1FC code CODE >637:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-1FE code CODE >638:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-200 code CODE >639:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-202 code CODE >647:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-204 code CODE >648:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-206 code CODE >650:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-208 code CODE >658:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-20A code CODE >659:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-20C code CODE >660:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-20E code CODE >661:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-210 code CODE >662:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-212 code CODE >663:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-214 code CODE >664:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-216 code CODE >665:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-218 code CODE >666:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-21A code CODE >667:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-21C code CODE >671:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-21E code CODE >671:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-220 code CODE >671:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-222 code CODE >672:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-224 code CODE >673:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-226 code CODE >674:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-228 code CODE >675:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-22A code CODE >675:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-22C code CODE >675:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-22E code CODE >676:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-230 code CODE >679:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-232 code CODE >679:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-234 code CODE >679:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-236 code CODE >680:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-238 code CODE >688:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-23A code CODE >688:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-23C code CODE >688:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-23E code CODE >689:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-242 code CODE >690:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-244 code CODE >691:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-246 code CODE >693:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-248 code CODE >697:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-24A code CODE >698:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-24C code CODE >699:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-24E code CODE >702:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-250 code CODE >703:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-252 code CODE >704:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-254 code CODE >705:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-256 code CODE >706:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-258 code CODE >707:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-25A code CODE >708:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-25C code CODE >709:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-25E code CODE >710:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-260 code CODE >711:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-262 code CODE >715:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-264 code CODE >716:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-266 code CODE >717:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-268 code CODE >724:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-26A code CODE >725:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-26C code CODE >726:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-26E code CODE >726:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-270 code CODE >726:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-272 code CODE >727:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-274 code CODE >728:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-276 code CODE >729:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-278 code CODE >729:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-27A code CODE >729:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-27C code CODE >730:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
-27E code CODE >732:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1C4 code CODE >572:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1C8 code CODE >573:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1CA code CODE >575:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1CC code CODE >576:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1CE code CODE >577:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1D0 code CODE >577:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1D2 code CODE >577:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1D4 code CODE >578:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1D6 code CODE >578:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1D8 code CODE >578:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1DA code CODE >579:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1DC code CODE >580:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1DE code CODE >593:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1E0 code CODE >594:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1E2 code CODE >596:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1E4 code CODE >597:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1E6 code CODE >598:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1E8 code CODE >614:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1EA code CODE >615:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1EC code CODE >616:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1EE code CODE >616:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1F0 code CODE >616:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1F2 code CODE >617:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1F4 code CODE >617:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1F6 code CODE >617:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1F8 code CODE >618:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1FA code CODE >620:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1FC code CODE >628:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+1FE code CODE >629:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+200 code CODE >630:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+202 code CODE >631:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+204 code CODE >631:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+206 code CODE >631:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+208 code CODE >633:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+20A code CODE >641:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+20E code CODE >642:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+210 code CODE >643:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+212 code CODE >644:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+214 code CODE >645:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+216 code CODE >646:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+218 code CODE >647:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+21A code CODE >648:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+21C code CODE >656:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+21E code CODE >657:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+220 code CODE >659:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+222 code CODE >667:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+224 code CODE >667:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+226 code CODE >667:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+228 code CODE >668:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+22A code CODE >669:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+22C code CODE >670:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+22E code CODE >671:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+230 code CODE >672:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+232 code CODE >673:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+234 code CODE >674:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+236 code CODE >675:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+238 code CODE >676:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+23A code CODE >677:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+23C code CODE >681:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+23E code CODE >681:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+240 code CODE >681:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+242 code CODE >682:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+244 code CODE >682:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+246 code CODE >682:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+248 code CODE >683:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+24A code CODE >684:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+24C code CODE >685:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+24E code CODE >688:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+250 code CODE >688:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+252 code CODE >688:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+254 code CODE >689:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+256 code CODE >689:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+258 code CODE >689:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+25A code CODE >690:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+25C code CODE >691:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+25E code CODE >692:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+260 code CODE >700:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+262 code CODE >700:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+264 code CODE >700:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+266 code CODE >701:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+26A code CODE >702:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+26C code CODE >703:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+26E code CODE >705:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+270 code CODE >709:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+272 code CODE >710:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+274 code CODE >711:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+276 code CODE >715:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+278 code CODE >716:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+27A code CODE >717:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+27C code CODE >718:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+27E code CODE >719:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+280 code CODE >720:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+282 code CODE >721:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+284 code CODE >722:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+286 code CODE >723:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+288 code CODE >724:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+28A code CODE >725:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+28C code CODE >725:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+28E code CODE >725:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+290 code CODE >726:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+292 code CODE >730:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+294 code CODE >731:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+296 code CODE >732:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+298 code CODE >732:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+29A code CODE >732:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+29C code CODE >733:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+29E code CODE >740:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2A0 code CODE >741:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2A2 code CODE >742:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2A4 code CODE >742:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2A6 code CODE >742:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2A8 code CODE >743:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2AA code CODE >744:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2AC code CODE >745:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2AE code CODE >745:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2B0 code CODE >745:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2B2 code CODE >746:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2B4 code CODE >748:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2B6 code CODE >751:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2B8 code CODE >752:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2BA code CODE >753:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2BC code CODE >754:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2BE code CODE >755:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2C0 code CODE >755:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2C2 code CODE >755:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
+2C4 code CODE >756:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4.asm
 # %SYMTAB Section
 # An enumeration of all symbols in the program.
 # The beginning of the section is indicated by %SYMTAB.
@@ -392,8 +427,8 @@ FE code CODE >426:C:\Users\scott\Microavionics\Labs/Lab4/src/scott-mitchell-lab4
 # was defined in a psect then <psect> will be "-". File-name
 # is the name of the object file in which the symbol was defined.
 %SYMTAB
-__Hspace_0 29C 0 ABS 0 - -
-__Hspace_1 F 0 ABS 0 - -
+__Hspace_0 2E2 0 ABS 0 - -
+__Hspace_1 12 0 ABS 0 - -
 __Hspace_3 0 0 ABS 0 - -
 __Hspace_4 60000E 0 ABS 0 - -
 __Hudata_bank0 1C 0 ABS 0 udata_bank0 -
@@ -425,8 +460,8 @@ __Hcode 1C 0 ABS 0 code -
 __Hdata 1C 0 ABS 0 data -
 __Lcode 1C 0 ABS 0 code -
 __Ldata 1C 0 ABS 0 data -
-__S0 29C 0 ABS 0 - -
-__S1 F 0 ABS 0 - -
+__S0 2E2 0 ABS 0 - -
+__S1 12 0 ABS 0 - -
 __S3 0 0 ABS 0 - -
 __Ludata_bank10 1C 0 ABS 0 udata_bank10 -
 __Ludata_bank11 1C 0 ABS 0 udata_bank11 -
@@ -482,10 +517,10 @@ __Ludata_acs 1C 0 ABS 0 udata_acs -
 # All other numeric quantities are in decimal.
 %SEGMENTS
 resetVec 0 0 0 6 1
-romData 0 280 280 1C 1
-LoPriISR_Vec 0 18 18 268 1
+romData 0 2C6 2C6 1C 1
+LoPriISR_Vec 0 18 18 2AE 1
 HiPriISR_Vec 0 8 8 4 1
-udata_acs 1 0 0 F 1
+udata_acs 1 0 0 12 1
 # %NOTES Section
 # This section contains data of all the note-psects.  The beginning of the section
 # is indicated by %NOTES. The first line indicates the name and decimal
