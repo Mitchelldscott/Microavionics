@@ -11218,15 +11218,13 @@ loop:
 
     RCALL ButtonHandler ; Need to check every 2ms
 
-
 Delay1: ; Normalize the loop
 
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
     BRA Delay1 ; Loop if timer has not rolled over
-    RCALL SetPWM ; Should be done every 1us; done every 200us (100 cycles per period)
-
     MOVLF high loopval, TMR0H, A ; Then write the timer values into
     MOVLF low loopval, TMR0L, A ; the timer high and low registers
+    RCALL SetPWM ; Should be done every 1us; done every 200us (100 cycles per period)
     BCF INTCON, 2, A ; Clear the Timer flag
 
 
@@ -11437,6 +11435,8 @@ PWDisplay:
     MOVWF DECVAL+1, A
     LFSR 0, DECVAL
     RCALL DisplayV
+    RCALL BlinkAlive ; Blink every 250ms
+    RCALL ButtonHandler ; Need to check every 2ms
 Delay2:
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
     BRA Delay2 ; Loop if timer has not rolled over
@@ -11474,7 +11474,7 @@ L4:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 timerval equ 25536 ; 10ms delay
-loopval equ 64753 ; 220us - extra time to toggle led
+loopval equ 64747 ; 220us - extra time to toggle led
 display equ 64736 ; timer value for 200us
 
 Wait10ms:
@@ -11641,12 +11641,12 @@ BlinkAlive:
 ; this will only send display data if the pwm is on a downcycle and there is an update
 
 UpdateDisplay:
-    BTFSS PWUPDATE, 0, A
+    BTFSS PWUPDATE, 0, A ; check if ther is an update
  RETURN
-    BTFSS DOWNCYCLE, 0, A
+    BTFSS DOWNCYCLE, 0, A ; check if it is a down cycle
  RETURN
-    MOVLF 0, PWUPDATE, A
-    BRA PWDisplay
+    MOVLF 0, PWUPDATE, A ; clear update
+    BRA PWDisplay ; Display values
 
 
     END resetVec ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
