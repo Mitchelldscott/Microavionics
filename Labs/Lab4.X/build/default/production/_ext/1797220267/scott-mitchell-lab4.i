@@ -11161,15 +11161,15 @@ DUTY: DS 1 ; Track the PWM Duty Cycle (Decimal)
 DutyBig: DS 1 ; Duty Big
 CNT: DS 1 ; Reserve 1 byte for CNT in access bank at 0x000 (literal or file location)
 RE3TRACKER: DS 1 ; tracks the ((PORTD) and 0FFh), 3, a button value
-RE3TEMP: DS 1 ;
+RE3TEMP: DS 1 ; helps the tracker
 BOUNCECNT: DS 1 ; delay after button press
-ALIVECNT: DS 2 ;
+ALIVECNT: DS 2 ; counts the cycles between re4 toggles
 INTVAL: DS 3 ; Reserve 3 bytes for the integer part of the display
 DECVAL: DS 3 ; Reserve 3 bytes for the decimal part of the string
 PERIODCNT: DS 1 ; Track the PWM period
-PWUPDATE: DS 1 ;
-DOWNCYCLE: DS 1 ;
-COUNT: DS 1 ;
+PWUPDATE: DS 1 ; tracks update to the PWM value
+DOWNCYCLE: DS 1 ; tracks if the pwm is in a down cycle
+COUNT: DS 1 ; use in T50
 
 ; Objects to be defined in Bank 1
 PSECT udata_bank1
@@ -11186,7 +11186,7 @@ LCDTitle:
     DB 0x80,'A','S','E','N','5', '0', '6', '7', 0x00 ; Write "ASEN5067" to first line of LCD
 
 LCDpwmHeader:
-    DB 0xC0, 'P','W', '=', '1', '.', '0', '0', 'm', 's', 0x00
+    DB 0xC0, 'P','W', '=', '1', '.', '0', '0', 'm', 's', 0x00 ; constants for the pwm
 
 ;;;;;;;;;;;;;;;;;;;;;; Power-On-Reset entry point ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Taken from lab4_example.asm
@@ -11214,21 +11214,22 @@ PSECT code
 main:
     RCALL Initial ; Call to Initial Routine
 loop:
-    RCALL UpdateDisplay
+    RCALL UpdateDisplay ; Should happen on the down cycle of pwm (400us)
 
-    RCALL BlinkAlive
+    RCALL BlinkAlive ; Blink every 250ms
 
-    RCALL ButtonHandler
+    RCALL ButtonHandler ; Need to check every 2ms
 
-    RCALL SetPWM
-
-Delay1:
+Delay1: ; Normalize the loop
 
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
     BRA Delay1 ; Loop if timer has not rolled over
     MOVLF high loopval, TMR0H, A ; Then write the timer values into
     MOVLF low loopval, TMR0L, A ; the timer high and low registers
-    BCF INTCON, 2, A
+    RCALL SetPWM ; Should be done every 1us; done every 200us (100 cycles per period)
+    BCF INTCON, 2, A ; Clear the Timer flag
+
+
     BRA loop
 
 ;;;;;;;;;;;;;;;;;;;;;; Initialization Routine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11253,7 +11254,7 @@ Initial:
     RCALL InitLCD ; initialize the LCD
     RCALL Wait10ms
 
-    POINT LCDTitle
+    POINT LCDTitle ; set the asen5067 title
     RCALL DisplayC
 
     MOVLF 0x20h, PORTE, A ; Turn on ((PORTE) and 0FFh), 5, a
@@ -11268,31 +11269,28 @@ Initial:
     CLRF PORTE, A
     CLRF WREG, A
 
-    MOVLF 10, COUNT, A
-    MOVLF 125, ALIVECNT, A
-    MOVLF 10, ALIVECNT+1, A
-    MOVLF 5, PERIODCNT, A
-    MOVLF 10, BOUNCECNT, A
-    MOVLF 0, DUTY, A
-    MOVLF 1, DutyBig, A
+    MOVLF 10, COUNT, A ; set the initial value for the count (T50)
+    MOVLF 125, ALIVECNT, A ; set the lower byte of alive counter
+    MOVLF 10, ALIVECNT+1, A ; set the upper byte of alive counter (125 cycles of 200us)
+    MOVLF 5, PERIODCNT, A ; set the initial period counter for the pwm (100 cycles of 200us)
+    MOVLF 10, BOUNCECNT, A ; set the counter for the debounce (10 cycles of 200us)
+    MOVLF 0, DUTY, A ; initialize the decimal of the up time
+    MOVLF 1, DutyBig, A ; initialize the whole number of the up time
 
-    MOVLF 0xC3h, INTVAL, A
-    MOVLF 0x31h, INTVAL+1, A
-    CLRF INTVAL+2, A
+    MOVLF 0xC3h, INTVAL, A ; initialize the position of the whole number of the up time
+    MOVLF 0x31h, INTVAL+1, A ; initialize the value of the integer of the up time
+    CLRF INTVAL+2, A ; clear the final byte for end string
 
-    MOVLF 0xC5h, DECVAL, A
-    MOVLF 0x30h, DECVAL+1, A
-    CLRF DECVAL+2, A
+    MOVLF 0xC5h, DECVAL, A ; initialize the position of the decimal of up time
+    MOVLF 0x30h, DECVAL+1, A ; initialize the value of the decimal of up time
+    CLRF DECVAL+2, A ; clear the final byte of the string
 
-    POINT LCDpwmHeader
-    RCALL DisplayC
+    POINT LCDpwmHeader ; move the PWM header into the tableptr
+    RCALL DisplayC ; Display it
 
     MOVFF PORTE, RE3TRACKER, A ; initialize RD3Tracker
 
-    MOVLW 5
-    MULWF DutyBig, A
-
-    BTG LATC, 2, A
+    BTG LATC, 2, A ; turn on the pwm signal
 
     MOVLF high loopval,TMR0H,A ; Writing binary 25536 to TMR0H / TMR0L
     MOVLF low loopval,TMR0L,A ; Write high byte first, then low!
@@ -11422,7 +11420,7 @@ Loop6:
         RETURN
 
 
-;;;;;; ByteDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;; PWDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Display whatever is in Duty and DutyBig with the const wrappers.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11439,11 +11437,13 @@ PWDisplay:
     MOVWF DECVAL+1, A
     LFSR 0, DECVAL
     RCALL DisplayV
+    RCALL BlinkAlive ; Blink every 250ms
+    RCALL ButtonHandler ; Need to check every 2ms
 Delay2:
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
     BRA Delay2 ; Loop if timer has not rolled over
-    MOVLF high loopval, TMR0H, A ; Then write the timer values into
-    MOVLF low loopval, TMR0L, A ; the timer high and low registers
+    MOVLF high display, TMR0H, A ; Then write the timer values into
+    MOVLF low display, TMR0L, A ; the timer high and low registers
     BCF INTCON, 2, A
  RETURN
 
@@ -11475,8 +11475,9 @@ L4:
 ;; Taken from lab4_examble.asm
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-timerval equ 25536
-loopval equ 64736
+timerval equ 25536 ; 10ms delay
+loopval equ 64747 ; 220us - extra time to toggle led
+display equ 64736 ; timer value for 200us
 
 Wait10ms:
     BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
@@ -11492,6 +11493,7 @@ Wait10ms:
 ;
 ; Subroutine to wait 1 sec based on calling WaitXXXms YYY times or up to 3 nested loops
 ; calls wait10ms CNT times, can vary the delay
+
 Wait1sec:
     RCALL Wait10ms
     DECF CNT, F, A ; decrement second counter
@@ -11545,12 +11547,22 @@ INCRDuty:
  RETURN
 
 
+;;;;;; INCRDutyBig subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to increment the duty big
+; also reset the DUTY
+
 INCRDutyBig:
     MOVLF 0, DUTY, A ; Reset Duty
     MOVLF 2, DutyBig, A ; Otherwise increment DutyBig
     CLRF WREG, A
     RCALL ResetButton
  RETURN
+
+;;;;;; DECRDutyBig subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to decrement the duty big
+; also resets the DUTY
 
 DECRDutyBig:
     MOVLF 0, DUTY, A
@@ -11572,30 +11584,39 @@ ResetButton:
 
  RETURN
 
+;;;;;; SetPWM subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to count cycles for the pwm signal
 
 SetPWM:
     DECF PERIODCNT, A
     BZ CycleEdge
  RETURN
 
+;;;;;; CycleEdge subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to toggle the signal and reset the counters
 
 CycleEdge:
-    BTG LATC, 2, A
-    MOVLW 0x05h
+    BTG LATC, 2, A ; toggles the pwm signal
+    MOVLW 0x05h ; DutyBig is a multiple of 5 cycles
     MULWF DutyBig, A
     MOVF DUTY, W, A
-    RRNCF WREG, W, A
+    RRNCF WREG, W, A ; DUTY is double the number of cycles
     ADDWF PRODL, W, A
     CLRF PRODL, A
-    BTFSS PORTC, 2, A
+    BTFSS PORTC, 2, A ; set down cycles counter if bit is off
     BRA DownCycle
     MOVWF PERIODCNT, F, A
     MOVLF 0, DOWNCYCLE, A
  RETURN
 
+;;;;;; DownCycle subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle the period count on a downcycle
 
 DownCycle:
-    SUBLW 99 ; handle some timing errors on the down cycle
+    SUBLW 100 ; handle some timing errors on the down cycle
     MOVWF PERIODCNT, A
     MOVLF 1, DOWNCYCLE, A
  RETURN
@@ -11603,6 +11624,7 @@ DownCycle:
 ;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to handle ((PORTD) and 0FFh), 4, a toggle timing
+; Uses a 16bit timer to handle the counting
 
 BlinkAlive:
     DECFSZ ALIVECNT, F, A ; Decrement toggle delay counter
@@ -11615,13 +11637,18 @@ BlinkAlive:
 
  RETURN
 
+;;;;;; UpdateDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle the PWDisplay
+; this will only send display data if the pwm is on a downcycle and there is an update
+
 UpdateDisplay:
-    BTFSS PWUPDATE, 0, A
+    BTFSS PWUPDATE, 0, A ; check if ther is an update
  RETURN
-    BTFSS DOWNCYCLE, 0, A
+    BTFSS DOWNCYCLE, 0, A ; check if it is a down cycle
  RETURN
-    MOVLF 0, PWUPDATE, A
-    BRA PWDisplay
+    MOVLF 0, PWUPDATE, A ; clear update
+    BRA PWDisplay ; Display values
 
 
     END resetVec ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
