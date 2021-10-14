@@ -323,32 +323,28 @@ loop:
 ;;;;;;;;;;;;;;;;;;;;;; Initialization Routine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Initial:
 
-    CLRF PORTD, A
-    MOVLF 0x0Bh, TRISD, A		    ; Set TRISD so RDO & RD1 are input 
-					    ; and the rest are output
-    CLRF PORTJ, A
-    MOVLF 0x00h, TRISJ, A		    ; Same as port D except for there are no inputs
+    CLRF PORTE, A			    ; clear portE for LED sequence
 
     MOVLF 0x28h, SECCNT, A		    ; use 16bit SECCNT as 1 second timer
     MOVLF 0x01h, SECCNT+1, A	    
     MOVFF SECCNT, SECCNTVAL, A		    ; store SECCNT vals to reuse
     MOVFF SECCNT+1, SECCNTVAL+1, A
     
-    MOVLF 0x20h, PORTD, A		    ; Turn on RD5
+    MOVLF 0x20h, PORTE, A		    ; Turn on RD5
     
     MOVFF SECCNTVAL, SECCNT, A
     MOVFF SECCNTVAL+1, SECCNT+1, A
     
     RCALL	Wait1sec		    ; Pause for 1 second
     
-    MOVLF 0x40h, PORTD, A		    ; turn off RD5 and turn on RD6
+    MOVLF 0x40h, PORTE, A		    ; turn off RD5 and turn on RD6
     
     MOVFF SECCNTVAL, SECCNT, A
     MOVFF SECCNTVAL+1, SECCNT+1, A
     
     RCALL	Wait1sec		    ; Pause for 1 second
     
-    MOVLF 0x80h, PORTD, A
+    MOVLF 0x80h, PORTE, A
     
     MOVFF SECCNTVAL, SECCNT, A
     MOVFF SECCNTVAL+1, SECCNT+1, A
