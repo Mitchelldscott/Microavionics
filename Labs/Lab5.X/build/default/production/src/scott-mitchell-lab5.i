@@ -11157,37 +11157,40 @@ CONFIG EBRTB = OFF ; Table Read Protect Boot (Disabled)
 ; Objects to be defined in Access Bank for Variables.
 ; Examples:
 PSECT udata_acs
-DUTY: DS 1 ; The decimal value of the PWM signal (ms)
-DutyBig: DS 1 ; The integer value of the PWM signal (ms)
-CNT: DS 1 ; Reserve 1 byte for CNT in access bank at 0x000 (literal or file location) Used to count loops in waitXXXsec
-ALIVECNT: DS 2 ; counts the cycles between ((PORTD) and 0FFh), 4, a toggles DEPRECATED
-INTVAL: DS 3 ; Reserve 3 bytes for the integer part of the display passed to LCD (0xC3, value, 0x00)
-DECVAL: DS 3 ; Reserve 3 bytes for the decimal part of the display passed to LCD (0xC5, value, 0x00)
-PERIODCNT: DS 1 ; Track the PWM period
-PWUPDATE: DS 1 ; tracks update to the PWM value
-DOWNCYCLE: DS 1 ; tracks if the pwm is in a down cycle
-COUNT: DS 1 ; use in T50
-WREG_TEMP: DS 1 ; Temp variables used in Low Pri ISR
-STATUS_TEMP: DS 1
-BSR_TEMP: DS 1
-TMR1X: DS 1 ; Eight-bit extension to TMR1
-CCPR1X: DS 1 ; Eight-bit extension to CCPR1
-CCPR2X: DS 1 ; Eight-bit extension to CCPR2
-DEADX: DS 1 ; Variables for counting alive blinker
-DEADH: DS 1
-DEADL: DS 1
-ALIVEX: DS 1
-ALIVEH: DS 1
-ALIVEL: DS 1
-HIGHX: DS 1 ; Define variables for counting PWM cycles
-HIGHH: DS 1
-HIGHL: DS 1
-LOWX: DS 1
-LOWH: DS 1
-LOWL: DS 1
-DIR_RPG: DS 1 ; Direction of RPG
-RPG_TEMP: DS 1 ; Temp variable used for RPG state
-OLDPORTD: DS 1 ; Used to hold previous state of RPG
+DUTY: DS 1 ;0x00 ; The decimal value of the PWM signal (ms)
+DutyBig: DS 1 ;0x01 ; The integer value of the PWM signal (ms)
+CNT: DS 1 ;0x02 ; Reserve 1 byte for CNT in access bank at 0x000 (literal or file location) Used to count loops in waitXXXsec
+ALIVECNT: DS 2 ;0x03 ; counts the cycles between ((PORTD) and 0FFh), 4, a toggles DEPRECATED
+INTVAL: DS 3 ;0x05 ; Reserve 3 bytes for the integer part of the display passed to LCD (0xC3, value, 0x00)
+TENTHS: DS 3 ;0x08 ; Reserve 3 bytes for the tenths decimal part of the display passed to LCD (0xC5, value, 0x00)
+PERIODCNT: DS 1 ;0x0B ; Track the PWM period
+PWUPDATE: DS 1 ;0x0C ; tracks update to the PWM value
+DOWNCYCLE: DS 1 ;0x0D ; tracks if the pwm is in a down cycle
+COUNT: DS 1 ;0x0E ; use in T50
+WREG_TEMP: DS 1 ;0x0F ; Temp variables used in Low Pri ISR
+STATUS_TEMP: DS 1 ;0x10
+BSR_TEMP: DS 1 ;0x11
+TMR1X: DS 1 ;0x12 ; Eight-bit extension to TMR1
+TMR3X: DS 1 ;0x13 ; Eight-bit extension
+CCPR1X: DS 1 ;0x14 ; Eight-bit extension to CCPR1
+CCPR2X: DS 1 ;0x15 ; Eight-bit extension to CCPR2
+DEADX: DS 1 ;0x16 ; Variables for counting alive blinker
+DEADH: DS 1 ;0x17
+DEADL: DS 1 ;0x18
+ALIVEX: DS 1 ;0x19
+ALIVEH: DS 1 ;0x1A
+ALIVEL: DS 1 ;0x1B
+HIGHX: DS 1 ;0x1C ; Define variables for counting PWM cycles
+HIGHH: DS 1 ;0x1D
+HIGHL: DS 1 ;0x1E
+LOWX: DS 1 ;0x1F
+LOWH: DS 1 ;0x20
+LOWL: DS 1 ;0x21
+DIR_RPG: DS 1 ;0x21 ; Direction of RPG
+RPG_TEMP: DS 1 ;0x22 ; Temp variable used for RPG state
+OLDPORTD: DS 1 ;0x23 ; Used to hold previous state of RPG
+HUNTHS: DS 3 ;0x24 ; Display hundreths decimal
+DTEMP: DS 1 ;0x25
 
 ; Objects to be defined in Bank 1
 PSECT udata_bank1
@@ -11240,7 +11243,7 @@ DeadPeriod EQU 3200000 ; cycles of off for alive blink
 HighPeriod EQU 4000 ; instruction cycles of high on default PWM
 LowPeriod EQU 76000 ; instruction cycles of low on default PWM
 timerval EQU 25536 ; 10ms delay default WaitTimer will reset to this
-loopval EQU 64747 ; 220us - extra time to toggle led
+loopval EQU 63536 ; 500us
 display EQU 64736 ; timer value for 200us
 
 
@@ -11248,31 +11251,27 @@ display EQU 64736 ; timer value for 200us
 main:
     RCALL Initial ; Call to Initial Routine
 loop:
-    ; RCALL UpdateDisplay ; Should happen on the down cycle of pwm (400us)
+    RCALL UpdateDisplay ; Should happen on an update
+    RCALL RPG ; Check RPG for any changes
 
-    ; RCALL BlinkAlive ; Blink every
 
-    ; RCALL ButtonHandler ; Need to check every 2ms
+Delay1: ; Normalize the loop
 
-;Delay1: ; Normalize the loop
-;
-; BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
-; BRA Delay1 ; Loop if timer has not rolled over
-; MOVLF high loopval, TMR0H, A ; Then write the timer values into
-; MOVLF low loopval, TMR0L, A ; the timer high and low registers
-; ; RCALL SetPWM ; Should be done every 1us; done every 200us (100 cycles per period)
-; BCF INTCON, 2, A ; Clear the Timer flag
-
+    BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
+    BRA Delay1 ; Loop if timer has not rolled over
+    MOVLF high loopval, TMR0H, A ; Then write the timer values into
+    MOVLF low loopval, TMR0L, A ; the timer high and low registers
+    BCF INTCON, 2, A ; Clear the Timer flag
 
     BRA loop
 
 ;;;;;;;;;;;;;;;;;;;;;; Initialization Routine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Initial:
 
-    CLRF PORTD, A
-    CLRF TRISD, A
+    CLRF PORTD, A ; Clear PORTD for output
+    MOVLF 3, TRISD, A
 
-    CLRF PORTC, A ; set PortC as output
+    CLRF PORTC, A ; Clear PORTC for output
     CLRF TRISC, A
 
     CLRF PORTB, A ; set PortB for display
@@ -11320,11 +11319,13 @@ Initial:
     MOVLF 0x31h, INTVAL+1, A ; initialize the value of the integer of the up time
     CLRF INTVAL+2, A ; clear the final byte for end string
 
-    MOVLF 0xC5h, DECVAL, A ; initialize the position of the decimal of up time
-    MOVLF 0x30h, DECVAL+1, A ; initialize the value of the decimal of up time
-    CLRF DECVAL+2, A ; clear the final byte of the string
+    MOVLF 0xC5h, TENTHS, A ; initialize the position of the decimal of up time
+    MOVLF 0x30h, TENTHS+1, A ; initialize the value of the decimal of up time
+    CLRF TENTHS+2, A ; clear the final byte of the string
 
-    ;BTG LATC, 2, A ; turn on the pwm signal
+    MOVLF 0xC6h, HUNTHS, A ; initialize the position of the decimal of up time
+    MOVLF 0x30h, HUNTHS+1, A ; initialize the value of the decimal of up time
+    CLRF HUNTHS+2, A ; clear the final byte of the string
 
     MOVLF high loopval, TMR0H, A ; Writing binary 25536 to TMR0H / TMR0L
     MOVLF low loopval, TMR0L, A ; Write high byte first, then low!
@@ -11346,28 +11347,31 @@ Initial:
     MOVLF low highword LowPeriod, LOWX, A
 
     MOVLF 00000010B, T1CON, A ; 16 bit timer, buffer H/L registers
-    MOVLF 00000010B, T2CON, A ; 16 bit timer, buffer H/L registers
+    MOVLF 00000010B, T3CON, A ; 16 bit timer, buffer H/L registers
     MOVLF 00001010B, CCP1CON, A ; Select compare mode, software interrupt only
-    MOVLF 00001010B, CCP2CON, A ; Select compare mode, software interrupt only
-    MOVLB 0x0F ; Set BSR to bank F for SFRs outside of access bank
-    MOVLF 00000000B, CCPTMRS0, B ; Set TMR1 for use with ECCP1 & ECCP2, Using BSR!
+    MOVLF 00001010B, CCP2CON, B ; Select compare mode, software interrupt only
+    MOVLF 00001000B, CCPTMRS0, B ; Set TMR1 for use with ECCP1 & TMR3 for ECCP2, Using BSR!
     BSF RCON, 7, A ; Set ((RCON) and 0FFh), 7, a bit <7> enables priority levels
     BCF IPR1, 0, A ; ((IPR1) and 0FFh), 0, a bit <0> assigns low priority to TMR1 interrupts
-    BCF IPR1, 1, A ; ((IPR1) and 0FFh), 1, a bit <1> assigns low priority to TMR2 interrupts
+    BCF IPR2, 1, A ; ((IPR2) and 0FFh), 1, a bit <1> assigns low priority to TMR3 interrupts
     BCF IPR3, 1, A ; ((IPR3) and 0FFh), 1, a bit <1> assign low pri to ECCP1 interrupts
     BCF IPR3, 2, A ; ((IPR3) and 0FFh), 2, a bit <2> assign low pri to ECCP2 interrupts
     CLRF TMR1X, A ; Clear TMR1X extension
+    CLRF TMR3X, A ; Clear TMR3X extension
     MOVLF low highword DeadPeriod, CCPR1X, A ; Make first 24-bit compare
     MOVLF low highword LowPeriod, CCPR2X, A ; Make first 24-bit compare
-      ; occur quickly 16bit+8bit ext
-      ; Note: 200000 (= 0x30D40)
-    BCF T0CON, 7, A
+     ; occur quickly 16bit+8bit ext
+     ; Note: 200000 (= 0x30D40)
+    MOVFF PORTD, OLDPORTD, A
+    MOVLB 0x0F ; Set BSR to bank F for SFRs outside of access bank
+    BSF PIE1, 0, A ; ((PIE1) and 0FFh), 0, a bit <0> enables TMR1 interrupts
+    BSF PIE2, 1, A ; ((PIE2) and 0FFh), 1, a bit <1> enables TMR3 interrupts
     BSF PIE3, 1, A ; ((PIE3) and 0FFh), 1, a bit <1> enables ECCP1 interrupts
     BSF PIE3, 2, A ; ((PIE3) and 0FFh), 2, a bit <2> enables ECCP2 interrupts
-    BSF PIE1, 0, A ; ((PIE1) and 0FFh), 0, a bit <0> enables TMR1 interrupts
     BSF INTCON, 6, A ; ((INTCON) and 0FFh), 6, a bit <6> enable low-priority interrupts to CPU
     BSF INTCON, 7, A ; ((INTCON) and 0FFh), 7, a bit <7> enable all interrupts
     BSF T1CON, 0, A ; ((T1CON) and 0FFh), 0, a bit <0> turn on timer1
+    BSF T3CON, 0, A ; ((T3CON) and 0FFh), 0, a bit <0> turn on timer3
 
  RETURN ; Return to Mainline code
 
@@ -11394,11 +11398,16 @@ HandleCCP2:
     BRA HandleCCP1
 HandleTimer1:
     BTFSS PIR1, 0, A ; Test ((PIR1) and 0FFh), 0, a bit <0> for this interrupt
+    BRA HandleTimer3
+    RCALL TMR1Handler ; Call TMR1Handler for timing with ((PORTC) and 0FFh), 2, a
+    BRA HandleCCP1
+HandleTimer3:
+    BTFSS PIR2, 1, A ; Test ((PIR2) and 0FFh), 1, a bit <1> for interrupt
     BRA CleanUpLISR
-    RCALL TMR1handler ; Call TMR1handler for timing with ((PORTC) and 0FFh), 2, a
+    RCALL TMR3Handler ; Call TMR3Handler for timing with ((PORTC) and 0FFh), 1, a
     BRA HandleCCP1
 CleanUpLISR:
-    MOVF WREG_TEMP, w, A ; Restore WREG and STATUS
+    MOVF WREG_TEMP, W, A ; Restore WREG and STATUS
     MOVFF STATUS_TEMP, STATUS
     MOVFF BSR_TEMP, BSR
         RETFIE ; Return from interrupt, reenabling ((INTCON) and 0FFh), 6, a
@@ -11447,36 +11456,36 @@ ClearCCP1:
 
 ;;;;;;;; ((PORTC) and 0FFh), 1, a Handler ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 CCP2handler: ; First must test of ((PIR1) and 0FFh), 0, a occurred at the same time
-    BTFSS PIR1, 0, A ; If TMR1's overflow flag is set? skip to test CCP bit7
-    BRA HandleEdge ; If TMR1F was clear, branch to check extension bytes
-    BTFSC CCPR2H, 7, A ; Is bit 7 a 0? Then TMR1/CCP just rolled over, need to inc TMR1X
+    BTFSS PIR2, 1, A ; If TMR3's overflow flag is set? skip to test CCP bit7
+    BRA HandleEdge ; If TMR3F was clear, branch to check extension bytes
+    BTFSC CCPR2H, 7, B ; Is bit 7 a 0? Then TMR3/CCP just rolled over, need to inc TMR3X
     BRA HandleEdge ; Is bit 7 a 1? Then let TMR1handler inc TMR1X
-    INCF TMR1X, F, A ; TMR1/CCP just rolled over, must increment TMR1 extension
-    BCF PIR1, 0, A ; and clear ((PIR1) and 0FFh), 0, a bit <0> flag
+    INCF TMR3X, F, A ; TMR1/CCP just rolled over, must increment TMR1 extension
+    BCF PIR2, 1, A ; and clear ((PIR1) and 0FFh), 0, a bit <0> flag
      ; (Since TMR1 handler was unable to and arrived here first!)
 HandleEdge:
-    MOVF TMR1X, W, A ; Check whether extensions are equal
-    SUBWF CCPR2X, W, A ; by subtracting TMR1X and CCPR1X, check if 0
+    MOVF TMR3X, W, A ; Check whether extensions are equal
+    SUBWF CCPR2X, W, A ; by subtracting TMR3X and CCPR2X, check if 0
     BNZ ClearCCP2 ; If not, branch to return
-    BTG LATC, 2, A ; Manually toggle ((PORTD) and 0FFh), 4, a
-    BTFSS LATC, 2, A ; If on set up-cycle value
+    BTG LATC, 2, A ; Manually toggle ((PORTC) and 0FFh), 2, a
+    BTFSS LATC, 2, A ; If ((PORTC) and 0FFh), 2, a is ON set up-cycle value
     BRA PWDown
     BRA PWUp
 
 PWUp:
-    MOVF HIGHL, W, A ; and add half period to CCPR1 to add more pulse time
-    ADDWF CCPR2L, F, A
+    MOVF HIGHL, W, A ; and add up-cycles to CCPR2 to get less pulse time
+    ADDWF CCPR2L, F, B
     MOVF HIGHH, W, A ; Add to each of the 3 bytes to get 24 bit CCP
-    ADDWFC CCPR2H, F, A
+    ADDWFC CCPR2H, F, B
     MOVF HIGHX, W, A
     ADDWFC CCPR2X, F, A
     BRA ClearCCP2
 
 PWDown:
-    MOVF LOWL, W, A ; and add half period to CCPR1 to add more pulse time
-    ADDWF CCPR2L, F, A
+    MOVF LOWL, W, A ; and add down-cycles to CCPR2 to add more pulse time
+    ADDWF CCPR2L, F, B
     MOVF LOWH, W, A ; Add to each of the 3 bytes to get 24 bit CCP
-    ADDWFC CCPR2H, F, A
+    ADDWFC CCPR2H, F, B
     MOVF LOWX, W, A
     ADDWFC CCPR2X, F, A
     BRA ClearCCP2
@@ -11487,10 +11496,97 @@ ClearCCP2:
 
 
 ;;;;;;;; TMR Handler ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-TMR1handler:
+TMR1Handler:
     INCF TMR1X, F, A ;Increment Timer1 extension
     BCF PIR1, 0, A ;Clear ((PIR1) and 0FFh), 0, a flag and return to service routine
         RETURN
+
+TMR3Handler:
+    INCF TMR3X, F, A ;Increment Timer1 extension
+    BCF PIR2, 1, A ;Clear ((PIR2) and 0FFh), 1, a flag and return to service routine
+        RETURN
+
+
+;;;;;;; RPG subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Credit: This subroutine modified from Peatman book Chapter 8 - RPG
+; This subroutine decyphers RPG changes into values of DIR_RPG of 0, +1, or -1.
+; DIR_RPG = +1 for CW change, 0 for no change, and -1 for CCW change.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+RPG:
+    CLRF DIR_RPG, A ; Clear for "no change" return value.
+    MOVF PORTD, W, A ; Copy PORTD into W.
+    MOVWF RPG_TEMP, A ; and RPG_TEMP.
+    XORWF OLDPORTD, W, A ; Check for any change?
+    ANDLW 00000011B ; Masks just the RPG pins
+    BZ L8 ; If zero, RPG has not moved, ->return
+     ; But if the two bits have changed then...
+     ; Form what a CCW change would produce.
+    RRCF OLDPORTD, W, A ; Rotate right once into carry bit
+    BNC L9 ; If no carry, then bit 0 was a 0 -> branch to L9
+    BCF WREG, 1, A ; Otherwise, bit 0 was a 1. Then clear bit 1
+     ; to simulate what a CCW change would produce
+    BRA L10 ; Branch to compare if RPG actually matches new CCW pattern in WREG
+L9:
+    BSF WREG, 1, A ; Set bit 1 since there was no carry
+     ; again to simulate what CCW would produce
+L10: ; Test direction of RPG
+    XORWF RPG_TEMP, W, A ; Did the RPG actually change to this output?
+    ANDLW 00000011B ; Masks the RPG pins
+    BNZ L11 ; If not zero, then branch to L11 for CW case
+    DECF DIR_RPG, f, a ; If zero then change DIR_RPG to -1, must be CCW.
+; MOVLW 40 ; and add down-cycles to LOW to add more pulse time
+; ADDWF LOWL, F, A
+; CLRF WREG, A
+; ADDWFC LOWH, F, A
+; ADDWFC LOWX, F, A
+; MOVLW 40 ; and subtract down-cycles from HIGH to add more pulse time
+; SUBWF HIGHL, F, A
+; CLRF WREG, A
+; SUBWFB HIGHH, F, A
+; SUBWFB HIGHX, F, A
+    BRA L8 ; Done so branch to return
+L11: ; CW case
+    INCF DIR_RPG, f, a ; Change DIR_RPG to +1 for CW.
+; MOVLW 40 ; and add down-cycles to HIGH to add more pulse time
+; ADDWF HIGHL, F, A
+; CLRF WREG, A
+; ADDWFC HIGHH, F, A
+; ADDWFC HIGHX, F, A
+; MOVLW 40 ; and subtract down-cycles from LOW to add more pulse time
+; SUBWF LOWL, F, A
+; CLRF WREG, A
+; SUBWFB LOWH, F, A
+; SUBWFB LOWX, F, A
+L8:
+    MOVFF RPG_TEMP, OLDPORTD ; Save current RPG state as OLDPORTD
+
+    MOVF DUTY, W, A ; Put DUTY in WREG
+    ADDWF DIR_RPG, W, A ; Add change in DUTY to WREG
+    BN NegitveHandler ; If negative handle DutyBig and DUTY wrap
+    MOVWF DUTY, A ;
+    SUBLW 99
+    BN OverflowHandler
+    MOVF DutyBig, W, A
+    XORLW 2
+    BZ LimitHandler
+        RETURN
+NegativeHandler:
+    MOVLW 1
+    ANDWF DutyBig, F, A
+    BTFSC DutyBig, 0, A ; Zero DUTY if DutyBig is already 1
+    CLRF DUTY, A
+    MOVWF DutyBig, A ; If negative Always set DutyBig to 1
+ RETURN
+OverflowHandler:
+    CLRF DUTY, A
+    MOVLW 2
+    MOVWF DutyBig, A
+ RETURN
+LimitHandler:
+    CLRF DUTY, A
+ RETURN
 
 
 ;;;;;;; InitLCD subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11628,18 +11724,38 @@ PWDisplay:
     RCALL DisplayV
 
     MOVF DUTY, W, A ; Repeat above
-    ADDLW 0x30h
-    MOVWF DECVAL+1, A
-    LFSR 0, DECVAL
+    CLRF TENTHS+1, A
+    MOVLW 0x0A
+    MOVFF DUTY, HUNTHS+1, A
+
+GetDecimal:
+    SUBWF HUNTHS+1, F, A
+    BN DoneDiv
+    INCF TENTHS+1, A
+    BRA GetDecimal
+DoneDiv:
+    MOVLW 0x0Ah
+    ADDWF HUNTHS+1, F, A
+    MOVLW 0x30h
+    ADDWF TENTHS+1, F, A
+    LFSR 0, TENTHS
     RCALL DisplayV
-    RCALL BlinkAlive ; Blink every 250ms
-; RCALL ButtonHandler ; Need to check every 2ms
-Delay2:
-    BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
-    BRA Delay2 ; Loop if timer has not rolled over
-    MOVLF high display, TMR0H, A ; Then write the timer values into
-    MOVLF low display, TMR0L, A ; the timer high and low registers
-    BCF INTCON, 2, A
+
+    MOVLW 0x30h
+    ADDWF HUNTHS+1, F, A
+    LFSR 0, HUNTHS
+    RCALL DisplayV
+ RETURN
+
+
+;;;;;; UpdateDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Subroutine to handle the PWDisplay
+; this will only send display data if the pwm is on a downcycle and there is an update
+
+UpdateDisplay:
+    MOVF DIR_RPG, W, A ; check if ther is an update
+    BNZ PWDisplay
  RETURN
 
 
@@ -11708,47 +11824,19 @@ WaitXXXsec:
  RETURN
 
 
-;;;;;;; ButtonHandler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to check the status of ((PORTD) and 0FFh), 3, a button and change ((PORTD) and 0FFh), 2, a (ASEN5067 ONLY)
-
-;CheckSW1:
-; MOVFF PORTE, WREG, A ; Copy the value of PORTD to WREG
-; ANDLW 0x08h ; mask the value of PORTD to isolate ((PORTE) and 0FFh), 3, a
-; MOVWF RE3TEMP, A ; save this value incase the button was not pressed
-; XORWF RE3TRACKER, W, A ; using xor and & we can tell if the old value was
-; ANDWF RE3TRACKER, W, A ; high and the new is low, meaning the button was pressed
-; BNZ INCRDuty ; Increment the duty cycle
-; RCALL ResetButton ; Reset the trackers if no press
-; RETURN
-;
-
-;;;;;;; Button_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to handle sw debouncing
-
-;ButtonHandler:
-; DECF BOUNCECNT, A ; Decrement debounce counter
-; BZ CheckSW1 ; If Debounce safe check button
-;
-; RETURN
-
-
 ;;;;;;; INCRDuty subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Subroutine to increment the value of the pwm signal
 
 INCRDuty:
-    MOVLF 1, PWUPDATE, A
     MOVF DutyBig, W, A
     XORLW 2
     BZ DECRDutyBig
-    MOVLW 2 ; Put 2 in working reg
+    MOVLW 1 ; Put 2 in working reg
     ADDWF DUTY, W, A ; Add WREG to Duty (Decimal)
     MOVWF DUTY, A ; Put duty back in DUTY
-    XORLW 0x0Ah ; Check if Duty is 10
+    XORLW 0xA0h ; Check if Duty is 100
     BZ INCRDutyBig ; Resets Duty and incrments or resets DutyBig
-; RCALL ResetButton ; Reset the button trackers
  RETURN
 
 
@@ -11758,8 +11846,10 @@ INCRDuty:
 ; also reset the DUTY
 
 INCRDutyBig:
-    MOVLF 0, DUTY, A ; Reset Duty
-    MOVLF 2, DutyBig, A ; Otherwise increment DutyBig
+    MOVLW 0
+    MOVWF DUTY, A ; Reset Duty
+    MOVLW 2
+    MOVWF DutyBig, A ; Otherwise increment DutyBig
     CLRF WREG, A
 ; RCALL ResetButton
  RETURN
@@ -11770,24 +11860,14 @@ INCRDutyBig:
 ; also resets the DUTY
 
 DECRDutyBig:
-    MOVLF 0, DUTY, A
-    MOVLF 1, DutyBig, A
+    MOVLW 0
+    MOVWF DUTY, A ; Reset Duty
+    MOVLW 1
+    MOVWF DutyBig, A ; Otherwise increment DutyBig
     CLRF WREG, A
 ; RCALL ResetButton
  RETURN
 
-
-;;;;;;; Reset_Button subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to reset the values tracking ((PORTD) and 0FFh), 3, a
-
-;ResetButton:
-; MOVLF 10, BOUNCECNT, A ; Reset Debounce counter
-; MOVFF RE3TEMP, RE3TRACKER, A ; save ((PORTD) and 0FFh), 3, a value
-; CLRF RE3TEMP, A ; clear garbage
-; CLRF WREG, A
-;
-; RETURN
 
 ;;;;;; SetPWM subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -11825,37 +11905,6 @@ DownCycle:
     MOVWF PERIODCNT, A
     MOVLF 1, DOWNCYCLE, A
  RETURN
-
-;;;;;;; Toggle_Handler subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to handle ((PORTD) and 0FFh), 4, a toggle timing
-; Uses a 16bit timer to handle the counting
-
-BlinkAlive:
-    DECFSZ ALIVECNT, F, A ; Decrement toggle delay counter
- RETURN
-    MOVLF 100, ALIVECNT, A
-    DECFSZ ALIVECNT+1, F, A
- RETURN
-    MOVLF 10, ALIVECNT+1, A ; reset counter counter = frequency / looptime 1000 * 200us = 200ms
-    BTG LATD, 4, A ; toggle LED
-
-    BTFSS LATD, 4, A ; If down-cycle set delay to 4000 cycles of 200us = 800ms
-    MOVLF 40, ALIVECNT+1, A
- RETURN
-
-;;;;;; UpdateDisplay subroutine ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Subroutine to handle the PWDisplay
-; this will only send display data if the pwm is on a downcycle and there is an update
-
-UpdateDisplay:
-    BTFSS PWUPDATE, 0, A ; check if ther is an update
- RETURN
-    BTFSS DOWNCYCLE, 0, A ; check if it is a down cycle
- RETURN
-    MOVLF 0, PWUPDATE, A ; clear update
-    BRA PWDisplay ; Display values
 
 
     END resetVec ; End program, return to reset vector ;;;;;;; ASEN 4-5067 Lab3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
