@@ -289,37 +289,38 @@ CONFIG  EBRTB = OFF           ; Table Read Protect Boot (Disabled)
 ; Objects to be defined in Access Bank for Variables.
 ; Examples:
 PSECT	udata_acs
-DUTY:		DS	1   ; The decimal value of the PWM signal (ms)
-DutyBig:	DS	1   ; The integer value of the PWM signal (ms)
-CNT:		DS	1   ; Reserve 1 byte for CNT in access bank at 0x000 (literal or file location) Used to count loops in waitXXXsec
-ALIVECNT:	DS	2   ; counts the cycles between RD4 toggles DEPRECATED
-INTVAL:	    	DS	3   ; Reserve 3 bytes for the integer part of the display passed to LCD (0xC3, value, 0x00)
-DECVAL:		DS	3   ; Reserve 3 bytes for the decimal part of the display passed to LCD (0xC5, value, 0x00)
-PERIODCNT:	DS	1   ; Track the PWM period
-PWUPDATE:	DS	1   ; tracks update to the PWM value
-DOWNCYCLE:	DS	1   ; tracks if the pwm is in a down cycle
-COUNT:		DS	1   ; use in T50
-WREG_TEMP:	DS	1   ; Temp variables used in Low Pri ISR
-STATUS_TEMP:	DS	1
-BSR_TEMP:	DS	1    
-TMR1X:		DS	1   ; Eight-bit extension to TMR1
-CCPR1X:		DS	1   ; Eight-bit extension to CCPR1
-CCPR2X:		DS	1   ; Eight-bit extension to CCPR2
-DEADX:		DS	1   ; Variables for counting alive blinker
-DEADH:		DS	1   
-DEADL:		DS	1
-ALIVEX:		DS	1  
-ALIVEH:		DS	1  
-ALIVEL:		DS	1
-HIGHX:		DS	1   ; Define variables for counting PWM cycles
-HIGHH:		DS	1
-HIGHL:		DS	1
-LOWX:		DS	1
-LOWH:		DS	1
-LOWL:		DS	1
-DIR_RPG:	DS	1   ; Direction of RPG
-RPG_TEMP:	DS	1   ; Temp variable used for RPG state
-OLDPORTD:	DS	1   ; Used to hold previous state of RPG
+DUTY:		DS	1   ;0x00	; The decimal value of the PWM signal (ms)
+DutyBig:	DS	1   ;0x01	; The integer value of the PWM signal (ms)
+CNT:		DS	1   ;0x02	; Reserve 1 byte for CNT in access bank at 0x000 (literal or file location) Used to count loops in waitXXXsec
+ALIVECNT:	DS	2   ;0x03	; counts the cycles between RD4 toggles DEPRECATED
+INTVAL:	    	DS	3   ;0x05	; Reserve 3 bytes for the integer part of the display passed to LCD (0xC3, value, 0x00)
+DECVAL:		DS	3   ;0x08	; Reserve 3 bytes for the decimal part of the display passed to LCD (0xC5, value, 0x00)
+PERIODCNT:	DS	1   ;0x0B	; Track the PWM period
+PWUPDATE:	DS	1   ;0x0C	; tracks update to the PWM value
+DOWNCYCLE:	DS	1   ;0x0D	; tracks if the pwm is in a down cycle
+COUNT:		DS	1   ;0x0E	; use in T50
+WREG_TEMP:	DS	1   ;0x0F	; Temp variables used in Low Pri ISR
+STATUS_TEMP:	DS	1   ;0x100
+BSR_TEMP:	DS	1   ;0x101 
+TMR1X:		DS	1   ;0x102	; Eight-bit extension to TMR1
+TMR3X:		DS	1   ;0x103	; Eight-bit extension
+CCPR1X:		DS	1   ;0x104	; Eight-bit extension to CCPR1
+CCPR2X:		DS	1   ;0x105	; Eight-bit extension to CCPR2
+DEADX:		DS	1   ;0x106	; Variables for counting alive blinker
+DEADH:		DS	1   ;0x107
+DEADL:		DS	1   ;0x108
+ALIVEX:		DS	1   ;0x109
+ALIVEH:		DS	1   ;0x10A
+ALIVEL:		DS	1   ;0x10B
+HIGHX:		DS	1   ;0x10C	; Define variables for counting PWM cycles
+HIGHH:		DS	1   ;0x10D
+HIGHL:		DS	1   ;0x10E
+LOWX:		DS	1   ;0x10F
+LOWH:		DS	1   ;0x200
+LOWL:		DS	1   ;0x201
+DIR_RPG:	DS	1   ;0x201	; Direction of RPG
+RPG_TEMP:	DS	1   ;0x202	; Temp variable used for RPG state
+OLDPORTD:	DS	1   ;0x203	; Used to hold previous state of RPG
     
 ; Objects to be defined in Bank 1
 PSECT	udata_bank1
@@ -478,26 +479,31 @@ Initial:
     MOVLF	low highword LowPeriod, LOWX, A
     
     MOVLF	00000010B, T1CON, A	; 16 bit timer, buffer H/L registers
+    MOVLF	00000010B, T3CON, A	; 16 bit timer, buffer H/L registers
     MOVLF	00001010B, CCP1CON, A	; Select compare mode, software interrupt only
-    MOVLF	00001010B, CCP2CON, A	; Select compare mode, software interrupt only
+    MOVLF	00001010B, CCP2CON, B	; Select compare mode, software interrupt only
     MOVLB	0x0F			; Set BSR to bank F for SFRs outside of access bank				
-    MOVLF	00000000B, CCPTMRS0, B	; Set TMR1 for use with ECCP1 & ECCP2, Using BSR!
+    MOVLF	00001000B, CCPTMRS0, B	; Set TMR1 for use with ECCP1 & TMR3 for ECCP2, Using BSR!
     BSF		RCON, 7, A			; Set IPEN bit <7> enables priority levels
     BCF		IPR1, 0, A			; TMR1IP bit <0> assigns low priority to TMR1 interrupts
+    BCF		IPR2, 1, A			; TMR3IP bit <1> assigns low priority to TMR3 interrupts
     BCF		IPR3, 1, A			; CCP1IP bit <1> assign low pri to ECCP1 interrupts
     BCF		IPR3, 2, A			; CCP2IP bit <2> assign low pri to ECCP2 interrupts
     CLRF	TMR1X, A			; Clear TMR1X extension
+    CLRF	TMR3X, A			; Clear TMR3X extension
     MOVLF	low highword DeadPeriod, CCPR1X, A	; Make first 24-bit compare 
     MOVLF	low highword LowPeriod, CCPR2X, A	; Make first 24-bit compare
 						; occur quickly 16bit+8bit ext 
 						; Note: 200000 (= 0x30D40)
     BCF		T0CON, 7, A
+    BSF		PIE1, 0, A		; TMR1IE bit <0> enables TMR1 interrupts
+    BSF		PIE2, 1, A		; TMR3IE bit <1> enables TMR3 interrupts
     BSF		PIE3, 1, A		; CCP1IE bit <1> enables ECCP1 interrupts
     BSF		PIE3, 2, A		; CCP2IE bit <2> enables ECCP2 interrupts
-    BSF		PIE1, 0, A		; TMR1IE bit <0> enables TMR1 interrupts
     BSF		INTCON, 6, A		; GIEL bit <6> enable low-priority interrupts to CPU
     BSF		INTCON, 7, A		; GIEH bit <7> enable all interrupts
     BSF		T1CON, 0, A		; TMR1ON bit <0> turn on timer1
+    BSF		T3CON, 0, A		; TMR3ON bit <0> turn on timer3
         
 	RETURN				; Return to Mainline code
 
@@ -524,11 +530,16 @@ HandleCCP2:
     BRA		HandleCCP1
 HandleTimer1:
     BTFSS	PIR1, 0, A		; Test TMR1IF bit <0> for this interrupt
+    BRA		HandleTimer3
+    RCALL	TMR1Handler		; Call TMR1Handler for timing with CCP1
+    BRA		HandleCCP1
+HandleTimer3:
+    BTFSS	PIR2, 1, A		; Test TMR3IF bit <1> for interrupt
     BRA		CleanUpLISR
-    RCALL	TMR1handler		; Call TMR1handler for timing with CCP1
+    RCALL	TMR3Handler		; Call TMR3Handler for timing with CCP2
     BRA		HandleCCP1
 CleanUpLISR:
-    MOVF	WREG_TEMP, w, A		; Restore WREG and STATUS
+    MOVF	WREG_TEMP, W, A		; Restore WREG and STATUS
     MOVFF	STATUS_TEMP, STATUS
     MOVFF	BSR_TEMP, BSR        
         RETFIE				; Return from interrupt, reenabling GIEL
@@ -536,12 +547,12 @@ CleanUpLISR:
 	
 ;;;;;;;; CCP1 Handler ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 CCP1handler:				; First must test of TMR1IF occurred at the same time
-;    BTFSS	PIR1, 0, A		; If TMR1's overflow flag is set? skip to test CCP bit7
-;    BRA		HandleAlive		; If TMR1F was clear, branch to check extension bytes
-    ;BTFSC	CCPR1H, 7, A		; Is bit 7 a 0? Then TMR1/CCP just rolled over, need to inc TMR1X
-    ;BRA		HandleAlive		; Is bit 7 a 1? Then let TMR1handler inc TMR1X 
-    ;INCF	TMR1X, F, A		; TMR1/CCP just rolled over, must increment TMR1 extension
-    ;BCF		PIR1, 0, A		; and clear TMR1IF bit <0> flag 
+    BTFSS	PIR1, 0, A		; If TMR1's overflow flag is set? skip to test CCP bit7
+    BRA		HandleAlive		; If TMR1F was clear, branch to check extension bytes
+    BTFSC	CCPR1H, 7, A		; Is bit 7 a 0? Then TMR1/CCP just rolled over, need to inc TMR1X
+    BRA		HandleAlive		; Is bit 7 a 1? Then let TMR1handler inc TMR1X 
+    INCF	TMR1X, F, A		; TMR1/CCP just rolled over, must increment TMR1 extension
+    BCF		PIR1, 0, A		; and clear TMR1IF bit <0> flag 
 					;(Since TMR1 handler was unable to and arrived here first!)
 HandleAlive:
     MOVF	TMR1X, W, A		; Check whether extensions are equal
@@ -577,36 +588,36 @@ ClearCCP1:
 	
 ;;;;;;;; CCP2 Handler ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 CCP2handler:				; First must test of TMR1IF occurred at the same time
-;    BTFSS	PIR1, 0, A		; If TMR1's overflow flag is set? skip to test CCP bit7
-;    BRA		HandleEdge		; If TMR1F was clear, branch to check extension bytes
-;    BTFSC	CCPR2H, 7, A		; Is bit 7 a 0? Then TMR1/CCP just rolled over, need to inc TMR1X
-;    BRA		HandleEdge		; Is bit 7 a 1? Then let TMR1handler inc TMR1X 
-;    INCF	TMR1X, F, A		; TMR1/CCP just rolled over, must increment TMR1 extension
-;    BCF		PIR1, 0, A		; and clear TMR1IF bit <0> flag 
-					;(Since TMR1 handler was unable to and arrived here first!)
+    BTFSS	PIR2, 1, A		; If TMR3's overflow flag is set? skip to test CCP bit7
+    BRA		HandleEdge		; If TMR3F was clear, branch to check extension bytes
+    BTFSC	CCPR2H, 7, B		; Is bit 7 a 0? Then TMR3/CCP just rolled over, need to inc TMR3X
+    BRA		HandleEdge		; Is bit 7 a 1? Then let TMR1handler inc TMR1X 
+    INCF	TMR3X, F, A		; TMR1/CCP just rolled over, must increment TMR1 extension
+    BCF		PIR2, 1, A		; and clear TMR1IF bit <0> flag 
+					; (Since TMR1 handler was unable to and arrived here first!)
 HandleEdge:
-    MOVF	TMR1X, W, A		; Check whether extensions are equal
-    SUBWF	CCPR2X, W, A		; by subtracting TMR1X and CCPR1X, check if 0
-    BNZ		ClearCCP2			; If not, branch to return
-    BTG		LATC, 2, A		; Manually toggle RD4
-    BTFSS	LATC, 2, A		; If on set up-cycle value
+    MOVF	TMR3X, W, A		; Check whether extensions are equal
+    SUBWF	CCPR2X, W, A		; by subtracting TMR3X and CCPR2X, check if 0
+    BNZ		ClearCCP2		; If not, branch to return
+    BTG		LATC, 2, A		; Manually toggle RC2
+    BTFSS	LATC, 2, A		; If RC2 is ON set up-cycle value
     BRA		PWDown
     BRA		PWUp
 	
 PWUp:
-    MOVF	HIGHL, W, A		; and add half period to CCPR1 to add more pulse time
-    ADDWF	CCPR2L, F, A
+    MOVF	HIGHL, W, A		; and add up-cycles to CCPR2 to get less pulse time
+    ADDWF	CCPR2L, F, B
     MOVF	HIGHH, W, A		; Add to each of the 3 bytes to get 24 bit CCP
-    ADDWFC	CCPR2H, F, A
+    ADDWFC	CCPR2H, F, B
     MOVF	HIGHX, W, A
     ADDWFC	CCPR2X, F, A 
     BRA		ClearCCP2
     
 PWDown:
-    MOVF	LOWL, W, A		; and add half period to CCPR1 to add more pulse time
-    ADDWF	CCPR2L, F, A
+    MOVF	LOWL, W, A		; and add down-cycles to CCPR2 to add more pulse time
+    ADDWF	CCPR2L, F, B
     MOVF	LOWH, W, A		; Add to each of the 3 bytes to get 24 bit CCP
-    ADDWFC	CCPR2H, F, A
+    ADDWFC	CCPR2H, F, B
     MOVF	LOWX, W, A
     ADDWFC	CCPR2X, F, A
     BRA		ClearCCP2
@@ -617,9 +628,14 @@ ClearCCP2:
 	
 	
 ;;;;;;;; TMR Handler ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-TMR1handler:
+TMR1Handler:
     INCF	TMR1X, F, A		;Increment Timer1 extension
     BCF		PIR1, 0, A		;Clear TMR1IF flag and return to service routine
+        RETURN
+	
+TMR3Handler:
+    INCF	TMR3X, F, A		;Increment Timer1 extension
+    BCF		PIR2, 1, A		;Clear TMR3IF flag and return to service routine
         RETURN
 	
 	

@@ -11254,14 +11254,14 @@ loop:
 
     ; RCALL ButtonHandler ; Need to check every 2ms
 
-Delay1: ; Normalize the loop
-
-    BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
-    BRA Delay1 ; Loop if timer has not rolled over
-    MOVLF high loopval, TMR0H, A ; Then write the timer values into
-    MOVLF low loopval, TMR0L, A ; the timer high and low registers
-    ; RCALL SetPWM ; Should be done every 1us; done every 200us (100 cycles per period)
-    BCF INTCON, 2, A ; Clear the Timer flag
+;Delay1: ; Normalize the loop
+;
+; BTFSS INTCON, 2, A ; Read Timer0 ((INTCON) and 0FFh), 2, a rollover flag and ...
+; BRA Delay1 ; Loop if timer has not rolled over
+; MOVLF high loopval, TMR0H, A ; Then write the timer values into
+; MOVLF low loopval, TMR0L, A ; the timer high and low registers
+; ; RCALL SetPWM ; Should be done every 1us; done every 200us (100 cycles per period)
+; BCF INTCON, 2, A ; Clear the Timer flag
 
 
     BRA loop
@@ -11346,22 +11346,24 @@ Initial:
     MOVLF low highword LowPeriod, LOWX, A
 
     MOVLF 00000010B, T1CON, A ; 16 bit timer, buffer H/L registers
+    MOVLF 00000010B, T2CON, A ; 16 bit timer, buffer H/L registers
     MOVLF 00001010B, CCP1CON, A ; Select compare mode, software interrupt only
     MOVLF 00001010B, CCP2CON, A ; Select compare mode, software interrupt only
     MOVLB 0x0F ; Set BSR to bank F for SFRs outside of access bank
     MOVLF 00000000B, CCPTMRS0, B ; Set TMR1 for use with ECCP1 & ECCP2, Using BSR!
     BSF RCON, 7, A ; Set ((RCON) and 0FFh), 7, a bit <7> enables priority levels
     BCF IPR1, 0, A ; ((IPR1) and 0FFh), 0, a bit <0> assigns low priority to TMR1 interrupts
+    BCF IPR1, 1, A ; ((IPR1) and 0FFh), 1, a bit <1> assigns low priority to TMR2 interrupts
     BCF IPR3, 1, A ; ((IPR3) and 0FFh), 1, a bit <1> assign low pri to ECCP1 interrupts
-    BCF IPR3, 2, A ; ((IPR3) and 0FFh), 2, a bit <1> assign low pri to ECCP2 interrupts
+    BCF IPR3, 2, A ; ((IPR3) and 0FFh), 2, a bit <2> assign low pri to ECCP2 interrupts
     CLRF TMR1X, A ; Clear TMR1X extension
-    MOVLF low highword HalfPeriod, CCPR1X, A ; Make first 24-bit compare
+    MOVLF low highword DeadPeriod, CCPR1X, A ; Make first 24-bit compare
+    MOVLF low highword LowPeriod, CCPR2X, A ; Make first 24-bit compare
       ; occur quickly 16bit+8bit ext
       ; Note: 200000 (= 0x30D40)
-    CLRF PIR3, B
-    CLRF PIR1, B
+    BCF T0CON, 7, A
     BSF PIE3, 1, A ; ((PIE3) and 0FFh), 1, a bit <1> enables ECCP1 interrupts
-    BSF PIE3, 2, A ; ((PIE3) and 0FFh), 2, a bit <1> enables ECCP2 interrupts
+    BSF PIE3, 2, A ; ((PIE3) and 0FFh), 2, a bit <2> enables ECCP2 interrupts
     BSF PIE1, 0, A ; ((PIE1) and 0FFh), 0, a bit <0> enables TMR1 interrupts
     BSF INTCON, 6, A ; ((INTCON) and 0FFh), 6, a bit <6> enable low-priority interrupts to CPU
     BSF INTCON, 7, A ; ((INTCON) and 0FFh), 7, a bit <7> enable all interrupts
@@ -11381,10 +11383,10 @@ LoPriISR:
     MOVWF WREG_TEMP, A
     MOVFF BSR, BSR_TEMP
 HandleCCP1:
-; BTFSS PIR3, 1, A ; Test ((PIR3) and 0FFh), 1, a bit <1> for this interrupt
-; BRA HandleCCP2
-; RCALL CCP1handler ; Call CCP1handler for generating ((PORTC) and 0FFh), 2, a output
-; BRA HandleCCP1
+    BTFSS PIR3, 1, A ; Test ((PIR3) and 0FFh), 1, a bit <1> for this interrupt
+    BRA HandleCCP2
+    RCALL CCP1handler ; Call CCP1handler for generating ((PORTC) and 0FFh), 2, a output
+    BRA HandleCCP1
 HandleCCP2:
     BTFSS PIR3, 2, A ; Test if ((PIR3) and 0FFh), 2, a bit <2> for this interrupt
     BRA HandleTimer1
@@ -11406,10 +11408,10 @@ CleanUpLISR:
 CCP1handler: ; First must test of ((PIR1) and 0FFh), 0, a occurred at the same time
     BTFSS PIR1, 0, A ; If TMR1's overflow flag is set? skip to test CCP bit7
     BRA HandleAlive ; If TMR1F was clear, branch to check extension bytes
-; BTFSC CCPR1H, 7, A ; Is bit 7 a 0? Then TMR1/CCP just rolled over, need to inc TMR1X
-; BRA HandleAlive ; Is bit 7 a 1? Then let TMR1handler inc TMR1X
-    ;INCF TMR1X, F, A ; TMR1/CCP just rolled over, must increment TMR1 extension
-    ;BCF PIR1, 0, A ; and clear ((PIR1) and 0FFh), 0, a bit <0> flag
+    BTFSC CCPR1H, 7, A ; Is bit 7 a 0? Then TMR1/CCP just rolled over, need to inc TMR1X
+    BRA HandleAlive ; Is bit 7 a 1? Then let TMR1handler inc TMR1X
+    INCF TMR1X, F, A ; TMR1/CCP just rolled over, must increment TMR1 extension
+    BCF PIR1, 0, A ; and clear ((PIR1) and 0FFh), 0, a bit <0> flag
      ;(Since TMR1 handler was unable to and arrived here first!)
 HandleAlive:
     MOVF TMR1X, W, A ; Check whether extensions are equal
@@ -11451,7 +11453,7 @@ CCP2handler: ; First must test of ((PIR1) and 0FFh), 0, a occurred at the same t
     BRA HandleEdge ; Is bit 7 a 1? Then let TMR1handler inc TMR1X
     INCF TMR1X, F, A ; TMR1/CCP just rolled over, must increment TMR1 extension
     BCF PIR1, 0, A ; and clear ((PIR1) and 0FFh), 0, a bit <0> flag
-     ;(Since TMR1 handler was unable to and arrived here first!)
+     ; (Since TMR1 handler was unable to and arrived here first!)
 HandleEdge:
     MOVF TMR1X, W, A ; Check whether extensions are equal
     SUBWF CCPR2X, W, A ; by subtracting TMR1X and CCPR1X, check if 0
@@ -11463,18 +11465,18 @@ HandleEdge:
 
 PWUp:
     MOVF HIGHL, W, A ; and add half period to CCPR1 to add more pulse time
-    ADDWF CCPR1L, F, A
+    ADDWF CCPR2L, F, A
     MOVF HIGHH, W, A ; Add to each of the 3 bytes to get 24 bit CCP
-    ADDWFC CCPR1H, F, A
+    ADDWFC CCPR2H, F, A
     MOVF HIGHX, W, A
     ADDWFC CCPR2X, F, A
     BRA ClearCCP2
 
 PWDown:
     MOVF LOWL, W, A ; and add half period to CCPR1 to add more pulse time
-    ADDWF CCPR1L, F, A
+    ADDWF CCPR2L, F, A
     MOVF LOWH, W, A ; Add to each of the 3 bytes to get 24 bit CCP
-    ADDWFC CCPR1H, F, A
+    ADDWFC CCPR2H, F, A
     MOVF LOWX, W, A
     ADDWFC CCPR2X, F, A
     BRA ClearCCP2
